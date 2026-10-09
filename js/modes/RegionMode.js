@@ -7,16 +7,30 @@ export class RegionMode extends BaseMode {
         super(game);
         this.regionTargetChamp = null;
         this.regionStreak = 0;
+        // Only champions whose region has a clickable pin can be answered, so
+        // restrict the target pool to those. Regions are read from the pins
+        // themselves to stay in sync with the map markup.
+        this.validRegions = this.collectValidRegions();
+        this.regionPool = CHAMPIONS.filter(c => this.validRegions.has(c.region));
     }
 
     get viewId() { return 'view-region-game'; }
+
+    collectValidRegions() {
+        const regions = new Set();
+        document.querySelectorAll('#view-region-game .map-pin').forEach(btn => {
+            const region = btn.getAttribute('data-region');
+            if (region) regions.add(region);
+        });
+        return regions;
+    }
 
     enter() {
         this.startRegionGame();
     }
 
     startRegionGame() {
-        this.regionTargetChamp = this.store.selectDiverseChampion(CHAMPIONS);
+        this.regionTargetChamp = this.store.selectDiverseChampion(this.regionPool);
         document.getElementById('region-target-name').innerText = this.regionTargetChamp.name;
         document.getElementById('region-target-card-name').innerText = this.regionTargetChamp.name;
         document.getElementById('region-target-img').src = this.portraitUrl(this.regionTargetChamp.id);

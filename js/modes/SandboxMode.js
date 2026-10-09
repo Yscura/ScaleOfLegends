@@ -5,6 +5,11 @@ import { BASELINE_HUMAN_CM } from '../core/constants.js';
 
 /** Free practice: a random champion with a selectable benchmark and unit system. */
 export class SandboxMode extends ArenaMode {
+    constructor(game) {
+        super(game);
+        this.currentChamp = null;
+    }
+
     enter() {
         document.getElementById('mode-subtitle').innerText = "FREE PRACTICE / SANDBOX";
 
@@ -16,6 +21,7 @@ export class SandboxMode extends ArenaMode {
 
     loadRandomChampion() {
         const champ = this.store.selectDiverseChampion(CHAMPIONS);
+        this.currentChamp = champ;
         this.elements.targetName.innerText = champ.name;
         this.elements.progressText.innerText = "PRACTICE";
         this.elements.championImg.src = this.portraitUrl(champ.id);
@@ -25,7 +31,7 @@ export class SandboxMode extends ArenaMode {
     }
 
     getCurrentChampion() {
-        return CHAMPIONS.find(c => c.name === this.elements.targetName.innerText) || CHAMPIONS[0];
+        return this.currentChamp || CHAMPIONS[0];
     }
 
     advance() {
