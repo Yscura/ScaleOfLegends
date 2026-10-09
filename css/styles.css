@@ -99,8 +99,79 @@ input[type="range"]::-moz-range-thumb {
 /* Map Pin Pulse */
 .map-pin {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 20;
 }
-.map-pin:hover {
+.map-pin:hover,
+.map-pin.region-active {
     transform: scale(1.15);
     z-index: 30;
+    box-shadow: 0 0 22px rgba(250, 204, 21, 0.85);
+}
+
+/* --- Dynamic Runeterra vector map --- */
+.map-canvas {
+    pointer-events: none; /* only region paths opt back in */
+}
+/* Gentle animated water shimmer */
+.map-water {
+    transform-origin: center;
+    animation: waterShift 22s ease-in-out infinite alternate;
+    will-change: transform;
+}
+@keyframes waterShift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(-5px, -3px) scale(1.03); }
+}
+
+/* Coastline glow sits on the whole land group */
+.map-land {
+    filter: url(#coast) drop-shadow(0 0 2px rgba(125, 211, 252, 0.55));
+}
+
+/* Rolling cloud layers: tiling puff textures that scroll continuously and
+   loop seamlessly (shift by exactly one tile). Two layers at different
+   speeds/sizes give a parallax "weather rolling across the map" feel. */
+.map-fog {
+    /* Puffs stay clear of the tile edges (0-33px & 511-520px are transparent)
+       so the horizontal repeat has nothing hard to clip -> no seam. Tiling
+       only on X with full height avoids any vertical seam. */
+    background-image:
+        radial-gradient(ellipse 150px 70px at 130px 28%, rgba(226, 245, 255, 0.30), transparent 66%),
+        radial-gradient(ellipse 140px 80px at 300px 64%, rgba(200, 225, 255, 0.24), transparent 66%),
+        radial-gradient(ellipse 110px 60px at 440px 40%, rgba(214, 238, 255, 0.28), transparent 66%);
+    background-size: 520px 100%;
+    background-repeat: repeat-x;
+    animation: cloudRollFar 100s linear infinite;
+    mix-blend-mode: screen;
+}
+.map-fog::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse 130px 65px at  90px 70%, rgba(235, 248, 255, 0.26), transparent 68%),
+        radial-gradient(ellipse 150px 80px at 250px 32%, rgba(205, 230, 255, 0.22), transparent 68%),
+        radial-gradient(ellipse  85px 50px at 335px 55%, rgba(220, 240, 255, 0.20), transparent 68%);
+    background-size: 400px 100%;
+    background-repeat: repeat-x;
+    animation: cloudRollNear 62s linear infinite;
+    mix-blend-mode: screen;
+}
+@keyframes cloudRollFar  { from { background-position:    0 0; } to { background-position:  520px 0; } }
+@keyframes cloudRollNear { from { background-position:    0 0; } to { background-position: -400px 0; } }
+
+/* --- Region landmasses double as hover targets --- */
+.region-land {
+    stroke: rgba(3, 18, 32, 0.55);
+    stroke-width: 0.35;
+    stroke-linejoin: round;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: filter 0.25s ease, stroke 0.25s ease;
+}
+/* Highlight the region whose pin (or land) is hovered/active */
+.region-land.region-active {
+    stroke: rgba(250, 204, 21, 0.95);
+    stroke-width: 0.8;
+    filter: brightness(1.35) drop-shadow(0 0 3px rgba(250, 204, 21, 0.9));
 }

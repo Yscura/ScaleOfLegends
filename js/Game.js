@@ -97,12 +97,17 @@ export class ScaleOfLegendsGame {
         document.getElementById('hl-btn-higher').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(true));
         document.getElementById('hl-btn-lower').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(false));
 
-        // Map Pin Region Clicks
-        document.querySelectorAll('#view-region-game .map-pin').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const clickedRegion = e.currentTarget.getAttribute('data-region');
-                this.modes.region.handleRegionGuess(clickedRegion);
-            });
+        // Map Pin Region Clicks + outline cross-highlighting
+        const regionTargets = document.querySelectorAll('#view-region-game [data-region]');
+        const setRegionActive = (region, active) => {
+            document.querySelectorAll(`#view-region-game [data-region="${region}"]`)
+                .forEach(el => el.classList.toggle('region-active', active));
+        };
+        regionTargets.forEach(el => {
+            const region = el.getAttribute('data-region');
+            el.addEventListener('mouseenter', () => setRegionActive(region, true));
+            el.addEventListener('mouseleave', () => setRegionActive(region, false));
+            el.addEventListener('click', () => this.modes.region.handleRegionGuess(region));
         });
 
         document.getElementById('copy-share-btn').addEventListener('click', () => this.modes.daily.copyShareCard());
