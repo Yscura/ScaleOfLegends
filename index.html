@@ -194,48 +194,67 @@
                             <stop offset="55%" stop-color="#083349"></stop>
                             <stop offset="100%" stop-color="#041c2c"></stop>
                         </radialGradient>
-                        <!-- Per-region terrain gradients -->
+                        <!-- Naturalistic terrain gradients: snow in the north, greens
+                             through the temperate middle, desert tan in the south, grey
+                             rock on the peaks -- matching the painted reference map. -->
                         <linearGradient id="gFreljord" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#eaf6ff"></stop><stop offset="100%" stop-color="#7cc3ec"></stop>
+                            <stop offset="0%" stop-color="#f3f8fc"></stop><stop offset="60%" stop-color="#d4e0e8"></stop><stop offset="100%" stop-color="#9fb3c2"></stop>
                         </linearGradient>
                         <linearGradient id="gDemacia" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#fdf6d8"></stop><stop offset="100%" stop-color="#e3b437"></stop>
+                            <stop offset="0%" stop-color="#cfe6a0"></stop><stop offset="100%" stop-color="#6f9a4c"></stop>
                         </linearGradient>
                         <linearGradient id="gNoxus" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#9f2727"></stop><stop offset="100%" stop-color="#3f0a0a"></stop>
+                            <stop offset="0%" stop-color="#c2d487"></stop><stop offset="100%" stop-color="#72803c"></stop>
                         </linearGradient>
                         <linearGradient id="gIonia" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#bff3d2"></stop><stop offset="100%" stop-color="#d98fd0"></stop>
+                            <stop offset="0%" stop-color="#c6e6a0"></stop><stop offset="100%" stop-color="#5c9550"></stop>
                         </linearGradient>
                         <linearGradient id="gPnz" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#4fd6a3"></stop><stop offset="100%" stop-color="#0c6b4e"></stop>
+                            <stop offset="0%" stop-color="#bdd98a"></stop><stop offset="100%" stop-color="#6c8a44"></stop>
                         </linearGradient>
                         <linearGradient id="gShurima" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#fbe49b"></stop><stop offset="100%" stop-color="#b2651a"></stop>
+                            <stop offset="0%" stop-color="#eedda6"></stop><stop offset="55%" stop-color="#d8b36e"></stop><stop offset="100%" stop-color="#bb8744"></stop>
                         </linearGradient>
                         <linearGradient id="gTargon" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#f3ecff"></stop><stop offset="55%" stop-color="#9f7be8"></stop><stop offset="100%" stop-color="#4c1d95"></stop>
+                            <stop offset="0%" stop-color="#eef1f6"></stop><stop offset="55%" stop-color="#b7bcc8"></stop><stop offset="100%" stop-color="#7c8290"></stop>
                         </linearGradient>
                         <linearGradient id="gIxtal" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#5bd77d"></stop><stop offset="100%" stop-color="#14532d"></stop>
+                            <stop offset="0%" stop-color="#a7d482"></stop><stop offset="100%" stop-color="#3c6a36"></stop>
                         </linearGradient>
                         <linearGradient id="gBilgewater" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#9fcf4e"></stop><stop offset="100%" stop-color="#3f5d16"></stop>
+                            <stop offset="0%" stop-color="#bcd98a"></stop><stop offset="100%" stop-color="#678542"></stop>
                         </linearGradient>
                         <linearGradient id="gShadow" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#2bd4b8"></stop><stop offset="100%" stop-color="#052e2a"></stop>
+                            <stop offset="0%" stop-color="#8fb595"></stop><stop offset="100%" stop-color="#3a5545"></stop>
                         </linearGradient>
                         <!-- Watery noise overlay -->
                         <filter id="water" x="-20%" y="-20%" width="140%" height="140%">
                             <feTurbulence type="fractalNoise" baseFrequency="0.018 0.045" numOctaves="3" seed="7" result="n"></feTurbulence>
                             <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.05  0 0 0 0 0.27  0 0 0 0 0.42  0 0 0 0.55 0"></feColorMatrix>
                         </filter>
-                        <!-- Organic coastline displacement for the land masses:
-                             higher frequency + more octaves + bigger scale pushes
-                             the smooth shores into jagged capes, bays and islets. -->
-                        <filter id="coast" x="-20%" y="-20%" width="140%" height="140%">
-                            <feTurbulence type="fractalNoise" baseFrequency="0.03 0.045" numOctaves="4" seed="11" result="t"></feTurbulence>
-                            <feDisplacementMap in="SourceGraphic" in2="t" scale="4.2" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+                        <!-- Coastline + relief filter. Step 1 crinkles the shores into
+                             jagged capes/islets. Steps 2-4 build a turbulence heightmap,
+                             light it from the NW, clip it to the land and blend it back
+                             as soft mountain/elevation shading like the painted map. -->
+                        <filter id="coast" x="-30%" y="-30%" width="160%" height="160%">
+                            <!-- 1. Nudge the already-jagged coastlines for organic edges -->
+                            <feTurbulence type="fractalNoise" baseFrequency="0.02 0.026" numOctaves="3" seed="11" result="coastN"></feTurbulence>
+                            <feDisplacementMap in="SourceGraphic" in2="coastN" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="land"></feDisplacementMap>
+                            <!-- 2. Low-frequency "turbulence" noise => a few large ridgelines, not grain -->
+                            <feTurbulence type="turbulence" baseFrequency="0.013 0.02" numOctaves="3" seed="3" result="heightN"></feTurbulence>
+                            <!-- 3. Light the ridges from the NW to get sun/shadow relief -->
+                            <feDiffuseLighting in="heightN" lighting-color="#ffffff" surfaceScale="3.2" diffuseConstant="1" result="relief">
+                                <feDistantLight azimuth="235" elevation="58"></feDistantLight>
+                            </feDiffuseLighting>
+                            <!-- 4. Push flat ground to ~white so multiply leaves it untouched;
+                                    only the shaded slopes stay dark -> true hillshade, no wash-out -->
+                            <feComponentTransfer in="relief" result="shade">
+                                <feFuncR type="linear" slope="1.25" intercept="-0.04"></feFuncR>
+                                <feFuncG type="linear" slope="1.25" intercept="-0.04"></feFuncG>
+                                <feFuncB type="linear" slope="1.25" intercept="-0.04"></feFuncB>
+                            </feComponentTransfer>
+                            <feComposite in="shade" in2="land" operator="in" result="shadeClip"></feComposite>
+                            <feBlend in="land" in2="shadeClip" mode="multiply"></feBlend>
                         </filter>
                     </defs>
 
@@ -244,7 +263,7 @@
                     <rect class="map-water" x="-10" y="-10" width="180" height="120" filter="url(#water)" opacity="0.5"></rect>
 
                     <!-- Faint cartographic graticule -->
-                    <g class="map-grid" stroke="#7dd3fc" stroke-width="0.15" opacity="0.1">
+                    <g class="map-grid" stroke="#7dd3fc" stroke-width="0.12" opacity="0.045">
                         <line x1="0" y1="20" x2="160" y2="20"></line>
                         <line x1="0" y1="40" x2="160" y2="40"></line>
                         <line x1="0" y1="60" x2="160" y2="60"></line>
@@ -266,20 +285,22 @@
                     <!-- Landmasses: one displacement field shared across the group so
                          abutting region borders stay seamless. -->
                     <g class="map-land" filter="url(#coast)">
-                        <!-- VALORAN (northern continent) -->
-                        <path class="region-land" data-region="freljord"      fill="url(#gFreljord)"   d="M12,24 L16,16 L21,19 L26,10 L31,15 L37,6 L43,12 L49,7 L54,13 L61,8 L67,13 L73,10 L77,16 L74,21 L77,26 L68,27 L60,24 L52,29 L44,25 L36,30 L29,26 L22,29 L16,25 L13,27 Z"></path>
-                        <path class="region-land" data-region="demacia"       fill="url(#gDemacia)"    d="M12,26 C10,34 10,44 14,51 C20,55 30,55 37,50 C40,43 39,34 38,27 C29,26 19,25 12,26 Z"></path>
-                        <path class="region-land" data-region="noxus"         fill="url(#gNoxus)"      d="M38,27 C48,25 64,25 78,25 C83,27 85,33 82,41 C76,48 62,49 50,47 C42,46 38,40 37,32 C37,30 37,28 38,27 Z"></path>
-                        <path class="region-land" data-region="piltover_zaun" fill="url(#gPnz)"        d="M62,46 C72,45 84,46 90,50 C94,54 92,60 86,62 C77,63 67,61 62,57 C59,53 59,49 62,46 Z"></path>
-                        <!-- IONIA (north-east islands) -->
-                        <path class="region-land" data-region="ionia"         fill="url(#gIonia)"      d="M102,13 C112,8 126,7 136,13 C141,17 139,27 131,31 C120,35 107,33 101,27 C97,23 97,17 102,13 Z M138,24 c3,-1 6,1 5,4 c-1,3 -5,3 -7,1 c-1,-2 0,-4 2,-5 Z"></path>
-                        <!-- SHURIMA (southern continent) -->
-                        <path class="region-land" data-region="shurima"       fill="url(#gShurima)"    d="M44,60 L50,57 L57,59 L64,56 L72,58 L80,55 L88,58 L96,56 L103,60 L108,66 L105,72 L109,78 L103,83 L95,86 L87,84 L79,89 L71,86 L63,90 L56,86 L49,88 L44,83 L41,76 L44,70 L41,65 Z"></path>
-                        <path class="region-land" data-region="targon"        fill="url(#gTargon)"     d="M28,60 C35,57 45,59 47,66 C48,75 43,84 34,86 C26,85 22,77 24,68 C25,64 26,61 28,60 Z"></path>
-                        <path class="region-land" data-region="ixtal"         fill="url(#gIxtal)"      d="M100,59 C110,56 124,58 129,65 C131,71 127,77 119,79 C110,79 102,75 100,69 C99,65 99,61 100,59 Z"></path>
-                        <!-- EASTERN SEAS -->
-                        <path class="region-land" data-region="bilgewater"    fill="url(#gBilgewater)" d="M120,41 C128,37 139,39 143,45 C144,51 139,56 131,56 C123,56 116,51 117,45 C118,43 119,42 120,41 Z M116,52 c2,-1 5,0 5,3 c0,3 -4,4 -6,2 c-2,-2 -1,-4 1,-5 Z"></path>
-                        <path class="region-land" data-region="shadow_isles"  fill="url(#gShadow)"     d="M124,72 L128,68 L133,71 L138,67 L143,70 L148,74 L146,80 L141,84 L135,86 L129,84 L124,79 Z"></path>
+                        <!-- VALORAN (one connected northern continent, tiled into regions
+                             that share borders; thin ocean seams read as rivers/straits). -->
+                        <path class="region-land" data-region="freljord"      fill="url(#gFreljord)"   d="M5,22 L9,15 L14,18 L20,9 L27,13 L34,5 L42,11 L50,4 L58,10 L66,5 L74,10 L82,7 L88,13 L92,20 L85,24 L78,22 L70,27 L62,24 L54,29 L46,25 L38,30 L30,26 L22,30 L14,26 L8,25 Z"></path>
+                        <path class="region-land" data-region="demacia"       fill="url(#gDemacia)"    d="M14,26 L22,27 L30,27 L36,31 L35,37 L37,42 L35,47 L36,51 L31,54 L25,55 L19,54 L14,55 L11,50 L13,45 L9,41 L11,36 L8,32 L10,28 Z"></path>
+                        <path class="region-land" data-region="noxus"         fill="url(#gNoxus)"      d="M36,31 L44,29 L50,30 L58,28 L66,30 L74,27 L82,28 L89,27 L94,31 L92,36 L97,40 L94,45 L97,48 L90,50 L84,49 L78,51 L70,49 L62,51 L54,49 L46,50 L40,48 L37,44 L39,39 L36,35 Z"></path>
+                        <!-- Piltover & Zaun: the isthmus bridging Valoran down to Shurima -->
+                        <path class="region-land" data-region="piltover_zaun" fill="url(#gPnz)"        d="M87,48 L91,49 L95,51 L96,55 L93,58 L88,59 L85,57 L85,52 Z"></path>
+                        <!-- IONIA (separate NE landmass + trailing isles) -->
+                        <path class="region-land" data-region="ionia"         fill="url(#gIonia)"      d="M104,13 L110,9 L116,11 L122,7 L130,9 L138,8 L144,12 L147,18 L144,24 L146,30 L140,33 L134,37 L127,35 L120,37 L114,33 L108,34 L103,29 L105,24 L101,19 L103,15 Z M136,37 l4,0 l2,3 l-1,4 l-4,1 l-3,-3 l0,-3 Z M127,41 l3,1 l1,3 l-2,3 l-4,-1 l-1,-3 Z"></path>
+                        <!-- SHURIMA (southern continent) with Targon west, Ixtal east -->
+                        <path class="region-land" data-region="shurima"       fill="url(#gShurima)"    d="M80,56 L72,58 L64,56 L56,59 L49,61 L46,66 L48,72 L46,78 L52,84 L60,89 L70,90 L79,87 L85,81 L89,73 L87,65 L84,59 Z"></path>
+                        <path class="region-land" data-region="targon"        fill="url(#gTargon)"     d="M46,63 L42,64 L39,68 L40,72 L37,76 L40,80 L43,85 L48,88 L51,85 L49,80 L51,75 L49,70 L50,66 L48,63 Z"></path>
+                        <path class="region-land" data-region="ixtal"         fill="url(#gIxtal)"      d="M86,60 L92,58 L98,60 L104,59 L109,63 L108,68 L110,73 L105,77 L98,80 L92,78 L87,74 L85,69 L88,64 Z"></path>
+                        <!-- EASTERN SEAS: island clusters -->
+                        <path class="region-land" data-region="bilgewater"    fill="url(#gBilgewater)" d="M114,54 L119,52 L124,53 L129,55 L132,59 L129,63 L124,65 L118,64 L114,61 L116,57 Z M127,61 l3,-1 l2,2 l-1,3 l-3,0 l-2,-2 Z M111,60 l4,-1 l1,3 l-2,2 l-3,-1 Z"></path>
+                        <path class="region-land" data-region="shadow_isles"  fill="url(#gShadow)"     d="M124,74 L129,71 L134,74 L139,70 L144,73 L147,78 L144,83 L138,85 L132,88 L127,85 L123,80 Z M142,84 l3,0 l1,3 l-2,2 l-3,-1 l0,-3 Z"></path>
                     </g>
 
                     <!-- Compass rose (top-right ocean) -->
@@ -307,52 +328,52 @@
 
                 <!-- Clickable Region Pins over Geographic Positions -->
                 <!-- Freljord (Top Left) -->
-                <button data-region="freljord" class="map-pin absolute top-[18%] left-[22%] bg-blue-900/90 hover:bg-blue-600 text-blue-200 border border-blue-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="freljord" class="map-pin absolute top-[17%] left-[24%] bg-blue-900/90 hover:bg-blue-600 text-blue-200 border border-blue-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     ❄️ Freljord
                 </button>
 
                 <!-- Demacia (Mid West) -->
-                <button data-region="demacia" class="map-pin absolute top-[40%] left-[18%] bg-amber-100/90 hover:bg-amber-300 text-slate-950 border border-amber-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="demacia" class="map-pin absolute top-[42%] left-[14%] bg-amber-100/90 hover:bg-amber-300 text-slate-950 border border-amber-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     🛡️ Demacia
                 </button>
 
                 <!-- Noxus (Center / Mid-North) -->
-                <button data-region="noxus" class="map-pin absolute top-[30%] left-[45%] bg-red-900/90 hover:bg-red-600 text-red-100 border border-red-500 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="noxus" class="map-pin absolute top-[34%] left-[44%] bg-red-900/90 hover:bg-red-600 text-red-100 border border-red-500 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     ⚔️ Noxus
                 </button>
 
                 <!-- Ionia (North East) -->
-                <button data-region="ionia" class="map-pin absolute top-[18%] left-[72%] bg-pink-900/90 hover:bg-pink-600 text-pink-200 border border-pink-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="ionia" class="map-pin absolute top-[20%] left-[75%] bg-pink-900/90 hover:bg-pink-600 text-pink-200 border border-pink-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     🌸 Ionia
                 </button>
 
                 <!-- Piltover & Zaun (Center Isthmus) -->
-                <button data-region="piltover_zaun" class="map-pin absolute top-[48%] left-[50%] bg-emerald-900/90 hover:bg-emerald-600 text-emerald-100 border border-emerald-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="piltover_zaun" class="map-pin absolute top-[52%] left-[56%] bg-emerald-900/90 hover:bg-emerald-600 text-emerald-100 border border-emerald-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     ⚙️ Piltover & Zaun
                 </button>
 
                 <!-- Shurima (South Central) -->
-                <button data-region="shurima" class="map-pin absolute top-[68%] left-[42%] bg-yellow-900/90 hover:bg-yellow-600 text-yellow-100 border border-yellow-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="shurima" class="map-pin absolute top-[74%] left-[43%] bg-yellow-900/90 hover:bg-yellow-600 text-yellow-100 border border-yellow-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     ☀️ Shurima
                 </button>
 
                 <!-- Mount Targon (South West) -->
-                <button data-region="targon" class="map-pin absolute top-[68%] left-[22%] bg-indigo-900/90 hover:bg-indigo-600 text-indigo-100 border border-indigo-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="targon" class="map-pin absolute top-[76%] left-[28%] bg-indigo-900/90 hover:bg-indigo-600 text-indigo-100 border border-indigo-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     🌟 Targon
                 </button>
 
                 <!-- Ixtal (South East Jungle) -->
-                <button data-region="ixtal" class="map-pin absolute top-[65%] left-[68%] bg-teal-900/90 hover:bg-teal-600 text-teal-100 border border-teal-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="ixtal" class="map-pin absolute top-[71%] left-[61%] bg-teal-900/90 hover:bg-teal-600 text-teal-100 border border-teal-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     🌿 Ixtal
                 </button>
 
                 <!-- Bilgewater (East Archipelago) -->
-                <button data-region="bilgewater" class="map-pin absolute top-[45%] left-[78%] bg-cyan-900/90 hover:bg-cyan-600 text-cyan-100 border border-cyan-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="bilgewater" class="map-pin absolute top-[58%] left-[76%] bg-cyan-900/90 hover:bg-cyan-600 text-cyan-100 border border-cyan-400 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     🏴‍☠️ Bilgewater
                 </button>
 
                 <!-- Shadow Isles (Far South East) -->
-                <button data-region="shadow_isles" class="map-pin absolute top-[75%] left-[82%] bg-teal-950/90 hover:bg-teal-800 text-teal-300 border border-teal-500 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
+                <button data-region="shadow_isles" class="map-pin absolute top-[80%] left-[84%] bg-teal-950/90 hover:bg-teal-800 text-teal-300 border border-teal-500 px-2.5 py-1 rounded-full text-[11px] font-black shadow-lg flex items-center gap-1">
                     👻 Shadow Isles
                 </button>
 
