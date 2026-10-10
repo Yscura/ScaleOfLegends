@@ -94,13 +94,22 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Custom icons (assigned via data/icons.js) */
+/* Smaller on mode pages so the game content has room... */
 .app-logo {
-    height: 5.75rem;
+    height: 3.5rem;
     width: auto;
     display: block;
+    transition: height 0.2s ease;
 }
 @media (min-width: 840px) {
-    .app-logo { height: 7.25rem; }
+    .app-logo { height: 4.25rem; }
+}
+/* ...and larger on the home page, where it's the hero. */
+body.is-home .app-logo {
+    height: 5.75rem;
+}
+@media (min-width: 840px) {
+    body.is-home .app-logo { height: 7.25rem; }
 }
 /* ===== Icon-only mode bar + hover tooltip ===== */
 #mode-bar { position: relative; }
@@ -121,16 +130,16 @@ input[type="range"]::-moz-range-thumb {
     position: relative;
     z-index: 1;
     flex: 0 0 auto;
-    width: 46px;
-    height: 46px;
+    width: 60px;
+    height: 60px;
     border-radius: 9999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--sol-panel);
+    background: var(--sol-bg);
     border: 2px solid var(--sol-gold-dim);
     color: var(--sol-gold-bright);
-    font-size: 1.15rem;
+    font-size: 1.5rem;
     cursor: pointer;
     transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
@@ -144,8 +153,8 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 0 14px rgb(var(--sol-gold-rgb) / 0.6);
 }
 .mode-tab-icon-img {
-    height: 26px;
-    width: 26px;
+    height: 40px;
+    width: 40px;
     object-fit: contain;
     display: block;
 }
@@ -468,7 +477,7 @@ input[type="range"]::-moz-range-thumb {
         radial-gradient(ellipse 110px 60px at 440px 40%, rgba(214, 238, 255, 0.28), transparent 66%);
     background-size: 520px 100%;
     background-repeat: repeat-x;
-    animation: cloudRollFar 100s linear infinite;
+    animation: cloudRollFar 50s linear infinite;
     mix-blend-mode: screen;
 }
 .map-fog::before {
@@ -481,11 +490,11 @@ input[type="range"]::-moz-range-thumb {
         radial-gradient(ellipse  85px 50px at 335px 55%, rgba(220, 240, 255, 0.20), transparent 68%);
     background-size: 400px 100%;
     background-repeat: repeat-x;
-    animation: cloudRollNear 62s linear infinite;
+    animation: cloudRollNear 30s linear infinite;
     mix-blend-mode: screen;
 }
 @keyframes cloudRollFar  { from { background-position:    0 0; } to { background-position:  520px 0; } }
-@keyframes cloudRollNear { from { background-position:    0 0; } to { background-position: -400px 0; } }
+@keyframes cloudRollNear { from { background-position:    0 0; } to { background-position: 400px 0; } }
 
 /* --- Region landmasses double as hover targets --- */
 .region-land {

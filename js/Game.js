@@ -84,6 +84,9 @@ export class ScaleOfLegendsGame {
         const title = document.getElementById('app-title');
         if (!title) return;
         const fallback = title.textContent.trim();
+        // Drop the text drop-shadow — on a rectangular image it renders as a
+        // boxy halo around the whole logo.
+        title.classList.remove('drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]');
         const img = document.createElement('img');
         img.className = 'app-logo';
         img.alt = fallback;
@@ -133,6 +136,7 @@ export class ScaleOfLegendsGame {
     /** Shows the home page and clears the active-mode highlight. */
     showHome() {
         this.currentMode = 'home';
+        document.body.classList.add('is-home');
         document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
         VIEW_IDS.forEach(id => {
             const el = document.getElementById(id);
@@ -282,6 +286,7 @@ export class ScaleOfLegendsGame {
     switchMode(mode) {
         this.currentMode = mode;
         this.activeMode = this.modes[mode];
+        document.body.classList.remove('is-home');
 
         document.querySelectorAll('.mode-tab').forEach(btn => {
             btn.classList.toggle('active', btn.id === `tab-${mode}`);
