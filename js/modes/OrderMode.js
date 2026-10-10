@@ -38,18 +38,18 @@ export class OrderMode extends BaseMode {
             const isSelected = this.selectedOrderSlot === idx;
 
             card.className = `p-3 rounded-2xl border-2 flex flex-col items-center justify-between text-center cursor-pointer transition-all ${
-                isSelected ? 'bg-cyan-950 border-cyan-400 scale-105 shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-slate-900 border-slate-700 hover:border-slate-500'
+                isSelected ? 'bg-[var(--sol-panel)] border-[color:var(--sol-gold)] scale-105 shadow-[0_0_15px_rgb(var(--sol-gold-rgb)_/_0.5)]' : 'bg-slate-900 border-slate-700 hover:border-[color:rgb(var(--sol-gold-rgb)_/_0.6)]'
             }`;
 
             card.onclick = () => this.handleOrderCardClick(idx);
 
             card.innerHTML = `
-                <span class="text-[10px] font-mono text-yellow-400 font-bold mb-1">POS #${idx + 1}</span>
+                <span class="text-[10px] font-mono text-[color:var(--sol-gold)] font-bold mb-1">POS #${idx + 1}</span>
                 <div class="h-32 w-full my-1 flex items-center justify-center">
                     <img src="${this.portraitUrl(champ.id)}" class="h-full object-contain rounded-lg drop-shadow" alt="${champ.name}">
                 </div>
                 <h4 class="text-xs font-black text-white mt-1 line-clamp-1">${champ.name}</h4>
-                <span id="order-reveal-${idx}" class="text-[10px] font-mono text-cyan-400 hidden mt-1">${ScaleUtils.formatHeight(champ.height, this.unitSystem)}</span>
+                <span id="order-reveal-${idx}" class="text-[10px] font-mono text-[color:var(--sol-gold)] hidden mt-1">${ScaleUtils.formatHeight(champ.height, this.unitSystem)}</span>
             `;
 
             container.appendChild(card);

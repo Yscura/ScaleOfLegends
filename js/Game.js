@@ -3,26 +3,26 @@ import { GameStore } from './core/GameStore.js';
 import { ScaleUtils } from './core/ScaleUtils.js';
 import { MIN_CM, MAX_CM } from './core/constants.js';
 import { BENCHMARKS } from './data/benchmarks.js';
+import { ICONS } from './data/icons.js';
+import { MODES } from './data/modes.js';
 import { DailyMode } from './modes/DailyMode.js';
 import { SandboxMode } from './modes/SandboxMode.js';
 import { RegionMode } from './modes/RegionMode.js';
 import { OrderMode } from './modes/OrderMode.js';
 import { HigherLowerMode } from './modes/HigherLowerMode.js';
-import { OverUnderMode } from './modes/OverUnderMode.js';
+import { PriceMode } from './modes/PriceMode.js';
 import { LadderMode } from './modes/LadderMode.js';
 
 const VIEW_IDS = [
+    'view-home',
     'view-scaling-arena',
     'view-region-game',
     'view-order-game',
     'view-higher-lower',
-    'view-over-under',
+    'view-price',
     'view-ladder',
     'daily-banner-notice'
 ];
-
-const TAB_INACTIVE_CLASS = "mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5";
-const TAB_ACTIVE_CLASS = "mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg bg-cyan-500 text-slate-950 font-black shadow-lg transition-all flex items-center justify-center gap-1.5";
 
 /**
  * Top-level orchestrator. Owns shared services (audio, store), shared state
@@ -46,14 +46,99 @@ export class ScaleOfLegendsGame {
             region: new RegionMode(this),
             order: new OrderMode(this),
             higherlower: new HigherLowerMode(this),
-            overunder: new OverUnderMode(this),
+            price: new PriceMode(this),
             ladder: new LadderMode(this)
         };
         this.activeMode = this.modes.daily;
 
         this.attachEventListeners();
+        this.buildModeBar();
+        this.buildHomePage();
+        this.applyLogo();
         this.updateStreakDisplay();
-        this.switchMode('daily');
+        this.showHome();
+    }
+
+    /**
+     * Fills `container` with a mode's icon: the assigned image (data/icons.js)
+     * if present, otherwise the emoji. A broken image path falls back to the
+     * emoji too, so assigning icons never breaks the UI.
+     */
+    fillIcon(container, src, emoji, imgClass) {
+        container.textContent = '';
+        if (src) {
+            const img = document.createElement('img');
+            img.className = imgClass;
+            img.alt = '';
+            img.onerror = () => { container.textContent = emoji; };
+            container.appendChild(img);
+            img.src = src;
+        } else {
+            container.textContent = emoji;
+        }
+    }
+
+    /** Swaps the title text for the logo image when one is assigned. */
+    applyLogo() {
+        if (!ICONS.logo) return;
+        const title = document.getElementById('app-title');
+        if (!title) return;
+        const fallback = title.textContent.trim();
+        const img = document.createElement('img');
+        img.className = 'app-logo';
+        img.alt = fallback;
+        img.onerror = () => { title.textContent = fallback; };
+        title.textContent = '';
+        title.appendChild(img);
+        img.src = ICONS.logo;
+    }
+
+    /** Builds the icon-only mode bar; hovering an icon reveals its name. */
+    buildModeBar() {
+        const bar = document.getElementById('mode-bar');
+        bar.innerHTML = '';
+        MODES.forEach(m => {
+            const btn = document.createElement('button');
+            btn.id = `tab-${m.id}`;
+            btn.className = 'mode-tab';
+            btn.setAttribute('data-tooltip', m.name);
+            btn.setAttribute('aria-label', m.name);
+            this.fillIcon(btn, ICONS.modes[m.id], m.emoji, 'mode-tab-icon-img');
+            btn.addEventListener('click', () => this.switchMode(m.id));
+            bar.appendChild(btn);
+        });
+    }
+
+    /** Builds the home page list of modes (icon + name + tagline). */
+    buildHomePage() {
+        const list = document.getElementById('home-mode-list');
+        list.innerHTML = '';
+        MODES.forEach(m => {
+            const card = document.createElement('button');
+            card.className = 'home-mode';
+            card.innerHTML =
+                `<span class="home-mode-icon"></span>` +
+                `<span class="home-mode-text">` +
+                `<span class="home-mode-name"></span>` +
+                `<span class="home-mode-tagline"></span>` +
+                `</span>`;
+            card.querySelector('.home-mode-name').textContent = m.name;
+            card.querySelector('.home-mode-tagline').textContent = m.tagline;
+            this.fillIcon(card.querySelector('.home-mode-icon'), ICONS.modes[m.id], m.emoji, 'home-mode-icon-img');
+            card.addEventListener('click', () => this.switchMode(m.id));
+            list.appendChild(card);
+        });
+    }
+
+    /** Shows the home page and clears the active-mode highlight. */
+    showHome() {
+        this.currentMode = 'home';
+        document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+        VIEW_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        document.getElementById('view-home').classList.remove('hidden');
     }
 
     bindElements() {
@@ -104,8 +189,8 @@ export class ScaleOfLegendsGame {
         document.getElementById('hl-btn-higher').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(true));
         document.getElementById('hl-btn-lower').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(false));
 
-        document.getElementById('ou-btn-taller').addEventListener('click', () => this.modes.overunder.handleGuess(true));
-        document.getElementById('ou-btn-shorter').addEventListener('click', () => this.modes.overunder.handleGuess(false));
+        document.getElementById('price-slider').addEventListener('input', () => this.modes.price.onSliderInput());
+        document.getElementById('price-lock-btn').addEventListener('click', () => this.modes.price.lockIn());
 
         // Map Pin Region Clicks + outline cross-highlighting
         const regionTargets = document.querySelectorAll('#view-region-game [data-region]');
@@ -125,13 +210,8 @@ export class ScaleOfLegendsGame {
             document.getElementById('daily-complete-modal').classList.add('hidden');
         });
 
-        const tabs = ['daily', 'region', 'order', 'higherlower', 'overunder', 'ladder', 'sandbox'];
-        tabs.forEach(mode => {
-            const tabBtn = document.getElementById(`tab-${mode}`);
-            if (tabBtn) {
-                tabBtn.addEventListener('click', () => this.switchMode(mode));
-            }
-        });
+        // Logo acts as a home button; mode-tab clicks are wired in buildModeBar().
+        document.getElementById('app-title').addEventListener('click', () => this.showHome());
     }
 
     handleUnitToggle() {
@@ -204,14 +284,13 @@ export class ScaleOfLegendsGame {
         this.activeMode = this.modes[mode];
 
         document.querySelectorAll('.mode-tab').forEach(btn => {
-            btn.className = TAB_INACTIVE_CLASS;
+            btn.classList.toggle('active', btn.id === `tab-${mode}`);
         });
-        const activeTab = document.getElementById(`tab-${mode}`);
-        if (activeTab) {
-            activeTab.className = TAB_ACTIVE_CLASS;
-        }
 
-        VIEW_IDS.forEach(id => document.getElementById(id).classList.add('hidden'));
+        VIEW_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
         document.getElementById(this.activeMode.viewId).classList.remove('hidden');
 
         this.activeMode.enter();

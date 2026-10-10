@@ -18,10 +18,10 @@
 
     <header class="w-full max-w-4xl flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
         <div class="flex items-center gap-3">
-            <h1 class="text-3xl sm:text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-yellow-300 to-red-500 drop-shadow-md">
+            <h1 id="app-title" title="Home" class="cursor-pointer select-none text-3xl sm:text-4xl font-black tracking-wider text-[color:var(--sol-gold)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
                 SCALE OF LEGENDS
             </h1>
-            <span class="bg-red-500/20 text-red-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-500/40 uppercase tracking-widest">
+            <span class="bg-[rgb(var(--sol-gold-rgb)_/_0.15)] text-[color:var(--sol-gold)] text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] uppercase tracking-widest">
                 170 CHAMPS
             </span>
         </div>
@@ -33,90 +33,72 @@
             </button>
 
             <!-- Unit System Toggle Switcher -->
-            <button id="unit-toggle-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-yellow-400 flex items-center gap-1.5 transition-colors shadow-md">
+            <button id="unit-toggle-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-[color:var(--sol-gold)] flex items-center gap-1.5 transition-colors shadow-md">
                 <span>🌐 Unit System:</span>
                 <span id="unit-label" class="text-white font-mono">Metric (m)</span>
             </button>
 
             <!-- Streak Counter -->
             <div class="bg-slate-800/80 border border-slate-700 px-3 py-1 rounded-lg text-right">
-                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Streak</div>
-                <div id="streak-counter" class="text-base font-black text-orange-400 flex items-center justify-end gap-1 font-mono">
+                <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase font-bold tracking-wider">Streak</div>
+                <div id="streak-counter" class="text-base font-black text-[color:var(--sol-gold)] flex items-center justify-end gap-1 font-mono">
                     🔥 0
                 </div>
             </div>
         </div>
     </header>
 
-    <nav class="w-full max-w-4xl mb-4 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-xl flex gap-1 overflow-x-auto text-xs font-bold">
-        <button id="tab-daily" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg bg-cyan-500 text-slate-950 font-black shadow-lg transition-all flex items-center justify-center gap-1.5">
-            <span>📅</span> Daily Scale
-        </button>
-
-        <button id="tab-region" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>🗺️</span> Region Map
-        </button>
-
-        <button id="tab-order" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>📊</span> Height Order
-        </button>
-
-        <button id="tab-higherlower" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>⚔️</span> Bigger?
-        </button>
-
-        <button id="tab-overunder" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>⚖️</span> Over/Under
-        </button>
-
-        <button id="tab-ladder" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>🪜</span> Scale Ladder
-        </button>
-
-        <button id="tab-sandbox" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
-            <span>🛠️</span> Practice
-        </button>
-    </nav>
+    <!-- Icon-only mode bar (populated from data/modes.js). Hover an icon for its name. -->
+    <nav id="mode-bar" class="w-full max-w-4xl mb-5 flex gap-2 sm:gap-3 justify-center items-center flex-wrap"></nav>
 
     <main class="w-full max-w-4xl flex-grow flex flex-col bg-slate-900/60 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden relative">
 
+        <!-- VIEW 0: HOME / MODE SELECT -->
+        <section id="view-home" class="hidden flex-col flex-grow p-5 sm:p-8 bg-slate-950 justify-start">
+            <div class="text-center mb-5">
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">Choose your challenge</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-[color:var(--sol-gold-bright)] mt-1">Guess League of Legends scales</h2>
+            </div>
+            <div id="home-mode-list" class="flex flex-col gap-3 max-w-lg mx-auto w-full"></div>
+        </section>
+
         <!-- VIEW 1: SCALING ARENA (Daily Mode & Free Practice) -->
-        <section id="view-scaling-arena" class="flex flex-col flex-grow">
+        <section id="view-scaling-arena" class="hidden flex flex-col flex-grow">
             <div class="text-center py-3 px-4 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <span id="mode-subtitle" class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                    <span id="mode-subtitle" class="text-xs font-mono text-[color:var(--sol-gold)] font-bold uppercase tracking-wider">
                         DAILY COMPARISON
                     </span>
-                    <span id="daily-unit-badge" class="bg-yellow-500/20 text-yellow-300 text-[10px] font-bold px-2 py-0.5 rounded border border-yellow-500/40 uppercase tracking-wider flex items-center gap-1">
+                    <span id="daily-unit-badge" class="bg-[rgb(var(--sol-gold-rgb)_/_0.15)] text-[color:var(--sol-gold)] text-[10px] font-bold px-2 py-0.5 rounded border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] uppercase tracking-wider flex items-center gap-1">
                         🔒 Hidden Units
                     </span>
                 </div>
                 <h2 id="target-name" class="text-2xl sm:text-3xl font-black text-white tracking-wide drop-shadow-md">
                     Loading...
                 </h2>
-                <div id="progress-text" class="text-sm font-bold text-yellow-400 font-mono">
+                <div id="progress-text" class="text-sm font-bold text-[color:var(--sol-gold)] font-mono">
                     1 / 5
                 </div>
             </div>
 
             <!-- Banner notice for Daily Mode -->
-            <div id="daily-banner-notice" class="bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-cyan-500/20 border-b border-yellow-500/30 px-3 py-1.5 text-center text-xs text-yellow-200 font-medium flex items-center justify-center gap-2">
+            <div id="daily-banner-notice" class="bg-[var(--sol-panel)] border-b border-[color:var(--sol-gold-dim)] px-3 py-1.5 text-center text-xs text-[color:var(--sol-gold-soft)] font-medium flex items-center justify-center gap-2">
                 <span>🎯</span>
-                <span><strong>Today's Scale Benchmark:</strong> <span id="daily-banner-unit-name" class="font-bold text-yellow-400">Teemo</span> — Exact meters/feet hidden until locked in!</span>
+                <span><strong>Today's Scale Benchmark:</strong> <span id="daily-banner-unit-name" class="font-bold text-[color:var(--sol-gold)]">Teemo</span> — Exact meters/feet hidden until locked in!</span>
             </div>
 
             <!-- Arena Visuals -->
             <div id="arena-container" class="arena-container relative w-full flex items-end justify-center gap-4 sm:gap-16 px-4 pb-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-950 overflow-hidden">
 
                 <!-- Ground Line -->
-                <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-yellow-400 to-cyan-500 shadow-[0_0_15px_rgba(250,204,21,0.5)] z-0"></div>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-[var(--sol-gold)] shadow-[0_0_15px_rgb(var(--sol-gold-rgb)_/_0.5)] z-0"></div>
 
                 <!-- Left Column: Baseline Reference Object -->
                 <div class="relative z-10 flex flex-col items-center justify-end h-full w-1/3 max-w-[220px]">
 
                     <!-- Dynamic Benchmark Selector -->
                     <div id="benchmark-selector-container" class="mb-2 w-full px-1">
-                        <select id="benchmark-select" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs px-2 py-1.5 rounded-lg border border-cyan-500/50 outline-none cursor-pointer text-center shadow-lg disabled:opacity-80 disabled:cursor-not-allowed">
+                        <select id="benchmark-select" class="w-full bg-slate-950 text-[color:var(--sol-gold)] font-bold text-xs px-2 py-1.5 rounded-lg border border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] outline-none cursor-pointer text-center shadow-lg disabled:opacity-80 disabled:cursor-not-allowed">
                             <option value="banana">🍌 Banana (0.18m)</option>
                             <option value="cat">🐱 House Cat (0.25m)</option>
                             <option value="poro">❄️ Poro (0.30m)</option>
@@ -135,7 +117,7 @@
                     <!-- Label -->
                     <div id="baseline-label-card" class="text-xs font-bold text-slate-300 mb-2 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-700 text-center whitespace-nowrap shadow-md">
                         <span id="baseline-title">Baseline Human</span><br>
-                        <span id="baseline-height-text" class="text-cyan-400 font-mono">1.74 m</span>
+                        <span id="baseline-height-text" class="text-[color:var(--sol-gold)] font-mono">1.74 m</span>
                     </div>
 
                     <!-- Visual Vector Container for Benchmark -->
@@ -147,14 +129,14 @@
                 <!-- Right Column: Target Champion -->
                 <div class="relative z-10 flex flex-col items-center justify-end h-full w-1/3 max-w-[380px]">
                     <!-- Live Height Label -->
-                    <div class="text-sm font-black text-slate-950 mb-2 bg-yellow-400 px-3.5 py-1 rounded-lg border-2 border-yellow-200 text-center shadow-[0_0_20px_rgba(250,204,21,0.6)] whitespace-nowrap font-mono flex flex-col items-center" id="live-guess-box">
+                    <div class="text-sm font-black text-[color:var(--sol-ink)] mb-2 bg-[var(--sol-gold)] px-3.5 py-1 rounded-lg border-2 border-[color:var(--sol-gold-bright)] text-center shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.6)] whitespace-nowrap font-mono flex flex-col items-center" id="live-guess-box">
                         <span id="live-guess-label">1.74 m</span>
                         <span id="live-guess-unit-count" class="text-[11px] font-black text-slate-800">1.00 Human</span>
                     </div>
 
                     <!-- Champion Visual -->
                     <div id="champion-visual" class="flex items-end justify-center character-scale">
-                        <img id="champion-img" src="" alt="Champion" class="h-full w-auto object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] border-2 border-cyan-500/50 rounded-lg">
+                        <img id="champion-img" src="" alt="Champion" class="h-full w-auto object-contain drop-shadow-[0_0_15px_rgb(var(--sol-gold-rgb)_/_0.4)] border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] rounded-lg">
                     </div>
                 </div>
             </div>
@@ -162,19 +144,19 @@
             <div class="p-5 bg-slate-950 border-t border-slate-800 flex-grow flex flex-col justify-center">
                 <div class="flex justify-between items-center text-xs font-mono text-slate-300 mb-1">
                     <span id="slider-min-label" class="font-bold">10 cm</span>
-                    <span class="text-red-400 font-extrabold text-xs tracking-wider flex items-center gap-1.5 uppercase">
-                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span class="text-[color:var(--sol-gold)] font-extrabold text-xs tracking-wider flex items-center gap-1.5 uppercase">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-[var(--sol-gold)] animate-pulse"></span>
                         SLIDE TO SCALE CHAMPION
                     </span>
                     <span id="slider-max-label" class="font-bold">50.00 m</span>
                 </div>
 
                 <!-- Glowing Slider Container -->
-                <div class="p-3 bg-slate-900 rounded-2xl border-2 border-red-500/60 shadow-[0_0_20px_rgba(239,68,68,0.25)]">
+                <div class="p-3 bg-slate-900 rounded-2xl border-2 border-[color:var(--sol-gold-dim)] shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.15)]">
                     <input type="range" id="height-slider" min="0" max="1000" step="1" value="211">
                 </div>
 
-                <button id="submit-btn" class="w-full mt-3 py-3.5 rounded-xl bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-400 hover:to-yellow-400 text-slate-950 font-black text-base tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all active:scale-95 uppercase">
+                <button id="submit-btn" class="w-full mt-3 py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.4)] transition-all active:scale-95 uppercase">
                     LOCK IN GUESS
                 </button>
             </div>
@@ -183,9 +165,9 @@
         <!-- VIEW 2: RUNETERRA REGION MAP QUIZ -->
         <section id="view-region-game" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between relative overflow-hidden">
             <div class="text-center mb-3">
-                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">ORIGIN CHALLENGE</span>
-                <h3 class="text-xl sm:text-2xl font-black text-white">Where is <span id="region-target-name" class="text-yellow-400 font-extrabold">Ambessa</span> From?</h3>
-                <p class="text-xs text-slate-400">Click the champion's home region on the map of Runeterra!</p>
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">ORIGIN CHALLENGE</span>
+                <h3 class="text-xl sm:text-2xl font-black text-white">Where is <span id="region-target-name" class="text-[color:var(--sol-gold)] font-extrabold">Ambessa</span> From?</h3>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Click the champion's home region on the map of Runeterra!</p>
             </div>
 
             <!-- Runeterra Map Layout Container -->
@@ -326,10 +308,10 @@
 
                 <!-- Target Champion Portrait Badge Overlay -->
                 <div class="absolute top-3 left-3 bg-slate-900/90 border border-slate-700 p-2 rounded-xl flex items-center gap-2 shadow-xl z-20">
-                    <img id="region-target-img" src="" class="w-10 h-10 object-cover rounded-lg border border-cyan-500" alt="Champ">
+                    <img id="region-target-img" src="" class="w-10 h-10 object-cover rounded-lg border border-[color:var(--sol-gold)]" alt="Champ">
                     <div>
                         <div id="region-target-card-name" class="text-xs font-black text-white">Ambessa</div>
-                        <div class="text-[10px] text-cyan-400 font-mono">Select Region Below</div>
+                        <div class="text-[10px] text-[color:var(--sol-gold)] font-mono">Select Region Below</div>
                     </div>
                 </div>
 
@@ -397,16 +379,16 @@
 
             <!-- Score Footer -->
             <div class="text-center mt-3">
-                <div class="text-slate-400 text-xs font-mono">MAP STREAK: <span id="region-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">MAP STREAK: <span id="region-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
             </div>
         </section>
 
         <!-- VIEW 3: HEIGHT ORDER GAME -->
         <section id="view-order-game" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
             <div class="text-center mb-2">
-                <span class="text-xs font-mono font-bold text-yellow-400 tracking-widest uppercase">LINEUP CHALLENGE</span>
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">LINEUP CHALLENGE</span>
                 <h3 class="text-xl sm:text-2xl font-black text-white">Arrange Shortest to Tallest</h3>
-                <p class="text-xs text-slate-400">Click or tap slots to swap champions into the correct scale order!</p>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Click or tap slots to swap champions into the correct scale order!</p>
             </div>
 
             <div id="order-cards-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-auto py-2">
@@ -414,7 +396,7 @@
             </div>
 
             <div class="flex flex-col gap-2 mt-2">
-                <button id="order-submit-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-500 to-cyan-500 hover:from-yellow-400 hover:to-cyan-400 text-slate-950 font-black text-base tracking-widest shadow-xl transition-all active:scale-95 uppercase">
+                <button id="order-submit-btn" class="w-full py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-xl transition-all active:scale-95 uppercase">
                     CHECK ORDER
                 </button>
             </div>
@@ -423,28 +405,28 @@
         <!-- VIEW 4: HIGHER LOWER GAME -->
         <section id="view-higher-lower" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
             <div class="text-center mb-4">
-                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">STREAK MODE</span>
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">STREAK MODE</span>
                 <h3 class="text-2xl font-black text-white">Who is Lore Taller?</h3>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow items-center max-w-2xl mx-auto w-full">
                 <!-- Left Champion -->
-                <div id="hl-left-card" class="bg-slate-900 border-2 border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[340px] relative overflow-hidden shadow-xl transition-all duration-300">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">REFERENCE CHAMPION</span>
-                    <h4 id="hl-left-name" class="text-xl font-black text-cyan-300">Darius</h4>
+                <div id="hl-left-card" class="bg-slate-900 border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[340px] relative overflow-hidden shadow-xl transition-all duration-300">
+                    <span class="text-[10px] font-bold text-[color:var(--sol-text-dim)] uppercase tracking-widest mb-1">REFERENCE CHAMPION</span>
+                    <h4 id="hl-left-name" class="text-xl font-black text-[color:var(--sol-gold)]">Darius</h4>
                     <div class="hl-stage h-44 w-full my-2 flex items-end justify-center relative">
                         <div class="hl-ground"></div>
                         <img id="hl-left-img" src="" class="hl-portrait h-full object-contain rounded-lg drop-shadow-md" alt="Left Champ">
                     </div>
-                    <div class="bg-cyan-950/80 border border-cyan-500/50 px-4 py-1.5 rounded-xl text-cyan-300 font-mono font-bold text-lg" id="hl-left-height">
+                    <div class="bg-[var(--sol-panel)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] px-4 py-1.5 rounded-xl text-[color:var(--sol-gold)] font-mono font-bold text-lg" id="hl-left-height">
                         1.90 m
                     </div>
                 </div>
 
                 <!-- Right Champion -->
-                <div id="hl-right-card" class="bg-slate-900 border-2 border-yellow-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[340px] relative overflow-hidden shadow-xl transition-all duration-300">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">TARGET CHAMPION</span>
-                    <h4 id="hl-right-name" class="text-xl font-black text-yellow-300">Galio</h4>
+                <div id="hl-right-card" class="bg-slate-900 border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[340px] relative overflow-hidden shadow-xl transition-all duration-300">
+                    <span class="text-[10px] font-bold text-[color:var(--sol-text-dim)] uppercase tracking-widest mb-1">TARGET CHAMPION</span>
+                    <h4 id="hl-right-name" class="text-xl font-black text-[color:var(--sol-gold)]">Galio</h4>
                     <div class="hl-stage h-44 w-full my-2 flex items-end justify-center relative">
                         <div class="hl-ground"></div>
                         <img id="hl-right-img" src="" class="hl-portrait h-full object-contain rounded-lg drop-shadow-md" alt="Right Champ">
@@ -459,74 +441,73 @@
                         </button>
                     </div>
 
-                    <div id="hl-result-reveal" class="hidden bg-yellow-950/80 border border-yellow-500/50 px-4 py-1.5 rounded-xl text-yellow-300 font-mono font-bold text-lg">
+                    <div id="hl-result-reveal" class="hidden bg-[var(--sol-reveal)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] px-4 py-1.5 rounded-xl text-[color:var(--sol-gold)] font-mono font-bold text-lg">
                         25.00 m
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-4 flex items-center justify-center gap-6">
-                <div class="text-slate-400 text-xs font-mono">STREAK: <span id="hl-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
-                <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="hl-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">STREAK: <span id="hl-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="hl-best" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
             </div>
         </section>
 
-        <!-- VIEW 5: OVER / UNDER A BENCHMARK -->
-        <section id="view-over-under" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
+        <!-- VIEW 5: PRICE IS RIGHT -->
+        <section id="view-price" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
             <div class="text-center mb-2">
-                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">SCALE INSTINCT</span>
-                <h3 class="text-xl sm:text-2xl font-black text-white">Taller or shorter than <span id="ou-bench-name" class="text-yellow-400">a Banana</span>?</h3>
-                <p class="text-xs text-slate-400">Judge the champion against the reference object.</p>
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">THE PRICE IS RIGHT</span>
+                <h3 class="text-xl sm:text-2xl font-black text-[color:var(--sol-gold-bright)]">How tall is <span id="price-champ-name" class="text-[color:var(--sol-gold)]">Teemo</span>?</h3>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Guess as close as you can — but go over and you BUST!</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 flex-grow items-center max-w-2xl mx-auto w-full">
-                <!-- Benchmark -->
-                <div class="bg-slate-900 border-2 border-yellow-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[320px] relative overflow-hidden shadow-xl">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">REFERENCE</span>
-                    <h4 id="ou-bench-title" class="text-lg font-black text-yellow-300">Banana</h4>
-                    <div class="hl-stage h-40 w-full my-2 flex items-end justify-center relative">
-                        <div class="hl-ground"></div>
-                        <div id="ou-bench-svg" class="hl-portrait h-full flex items-end justify-center"></div>
-                    </div>
-                    <div id="ou-bench-height" class="invisible bg-yellow-950/80 border border-yellow-500/50 px-4 py-1.5 rounded-xl text-yellow-300 font-mono font-bold text-lg">0.18 m</div>
+            <div class="flex flex-col items-center flex-grow justify-center max-w-xl mx-auto w-full gap-3">
+                <div class="hl-stage relative flex items-end justify-center" style="height: 170px;">
+                    <div class="hl-ground"></div>
+                    <img id="price-champ-img" src="" class="h-full object-contain rounded-lg drop-shadow-md border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.5)]" alt="Champ">
                 </div>
-                <!-- Champion -->
-                <div id="ou-champ-card" class="bg-slate-900 border-2 border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[320px] relative overflow-hidden shadow-xl transition-all duration-300">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">CHAMPION</span>
-                    <h4 id="ou-champ-name" class="text-lg font-black text-cyan-300">Darius</h4>
-                    <div class="hl-stage h-40 w-full my-2 flex items-end justify-center relative">
-                        <div class="hl-ground"></div>
-                        <img id="ou-champ-img" src="" class="hl-portrait h-full object-contain rounded-lg drop-shadow-md" alt="Champ">
-                    </div>
-                    <div id="ou-champ-height" class="invisible bg-cyan-950/80 border border-cyan-500/50 px-4 py-1.5 rounded-xl text-cyan-300 font-mono font-bold text-lg">0 m</div>
+
+                <div id="price-guess-box" class="bg-[var(--sol-gold)] text-[color:var(--sol-ink)] font-black font-mono text-2xl px-5 py-1.5 rounded-xl border-2 border-[color:var(--sol-gold-bright)] shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.45)]">
+                    1.74 m
                 </div>
+
+                <div id="price-reveal" class="hidden text-center text-sm font-bold leading-relaxed"></div>
             </div>
 
-            <div id="ou-actions" class="flex gap-2 mt-3 max-w-2xl mx-auto w-full">
-                <button id="ou-btn-taller" class="flex-1 py-3 bg-green-500 hover:bg-green-400 text-slate-950 font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg">▲ TALLER</button>
-                <button id="ou-btn-shorter" class="flex-1 py-3 bg-red-500 hover:bg-red-400 text-slate-950 font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg">▼ SHORTER</button>
+            <div class="p-2 sm:p-4">
+                <div class="flex justify-between items-center text-xs font-mono text-[color:var(--sol-text-dim)] mb-1">
+                    <span id="price-min-label" class="font-bold">10 cm</span>
+                    <span class="text-[color:var(--sol-gold)] font-extrabold uppercase tracking-wider">Set your guess</span>
+                    <span id="price-max-label" class="font-bold">50.00 m</span>
+                </div>
+                <div class="p-3 bg-slate-900 rounded-2xl border-2 border-[color:var(--sol-gold-dim)] shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.15)]">
+                    <input type="range" id="price-slider" min="0" max="1000" step="1" value="211">
+                </div>
+                <button id="price-lock-btn" class="w-full mt-3 py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.35)] transition-all active:scale-95 uppercase">
+                    LOCK IN PRICE
+                </button>
             </div>
 
-            <div class="text-center mt-3 flex items-center justify-center gap-6">
-                <div class="text-slate-400 text-xs font-mono">SCORE: <span id="ou-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
-                <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="ou-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
+            <div class="text-center mt-1 flex items-center justify-center gap-6">
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">SCORE: <span id="price-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="price-best" class="text-[color:var(--sol-teal)] text-lg font-black font-sans ml-1">0</span></div>
             </div>
         </section>
 
         <!-- VIEW 6: SCALE LADDER -->
         <section id="view-ladder" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
             <div class="text-center mb-2">
-                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">SCALE LADDER</span>
-                <h3 class="text-xl sm:text-2xl font-black text-white">Where does <span id="ladder-champ-name" class="text-yellow-400">Teemo</span> fit?</h3>
-                <p class="text-xs text-slate-400">Slot each champion into the height-sorted ladder — shortest at top.</p>
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">SCALE LADDER</span>
+                <h3 class="text-xl sm:text-2xl font-black text-white">Where does <span id="ladder-champ-name" class="text-[color:var(--sol-gold)]">Teemo</span> fit?</h3>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Slot each champion into the height-sorted ladder — shortest at top.</p>
             </div>
 
             <div class="flex gap-4 flex-grow max-w-2xl mx-auto w-full min-h-0">
                 <!-- Champion to place -->
-                <div class="w-1/3 flex flex-col items-center justify-center bg-slate-900 border-2 border-yellow-500/40 rounded-2xl p-3 shadow-xl shrink-0">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">PLACE THIS</span>
+                <div class="w-1/3 flex flex-col items-center justify-center bg-slate-900 border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-2xl p-3 shadow-xl shrink-0">
+                    <span class="text-[10px] font-bold text-[color:var(--sol-text-dim)] uppercase tracking-widest mb-1">PLACE THIS</span>
                     <img id="ladder-champ-img" src="" class="h-24 sm:h-28 object-contain rounded-lg drop-shadow-md my-2" alt="Champ">
-                    <h4 id="ladder-champ-title" class="text-sm font-black text-yellow-300 text-center line-clamp-1">Teemo</h4>
+                    <h4 id="ladder-champ-title" class="text-sm font-black text-[color:var(--sol-gold)] text-center line-clamp-1">Teemo</h4>
                     <span class="text-[10px] text-slate-500 font-mono mt-1">height: ???</span>
                 </div>
                 <!-- Sorted ladder with insertion slots -->
@@ -534,8 +515,8 @@
             </div>
 
             <div class="text-center mt-3 flex items-center justify-center gap-6">
-                <div class="text-slate-400 text-xs font-mono">PLACED: <span id="ladder-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
-                <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="ladder-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">PLACED: <span id="ladder-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="ladder-best" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
             </div>
         </section>
 
@@ -551,19 +532,19 @@
 
             <div class="grid grid-cols-2 gap-3 mb-4 relative z-10 font-mono">
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5 font-sans">Your Scale Guess</div>
-                    <div id="result-guess" class="text-lg font-bold text-yellow-400">0 m</div>
-                    <div id="result-guess-units" class="text-[11px] text-yellow-300/80">0 Bananas</div>
+                    <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase tracking-wider mb-0.5 font-sans">Your Scale Guess</div>
+                    <div id="result-guess" class="text-lg font-bold text-[color:var(--sol-gold)]">0 m</div>
+                    <div id="result-guess-units" class="text-[11px] text-[color:var(--sol-gold)]/80">0 Bananas</div>
                 </div>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5 font-sans">Actual Lore Scale</div>
-                    <div id="result-actual" class="text-lg font-bold text-cyan-400">0 m</div>
-                    <div id="result-actual-units" class="text-[11px] text-cyan-300/80">0 Bananas</div>
+                    <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase tracking-wider mb-0.5 font-sans">Actual Lore Scale</div>
+                    <div id="result-actual" class="text-lg font-bold text-[color:var(--sol-gold)]">0 m</div>
+                    <div id="result-actual-units" class="text-[11px] text-[color:var(--sol-gold)]/80">0 Bananas</div>
                 </div>
             </div>
 
-            <div id="lore-fact-box" class="mb-6 p-3 bg-slate-950/80 rounded-xl border border-cyan-500/30 text-left relative z-10">
-                <div class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
+            <div id="lore-fact-box" class="mb-6 p-3 bg-slate-950/80 rounded-xl border border-[color:rgb(var(--sol-gold-rgb)_/_0.3)] text-left relative z-10">
+                <div class="text-[10px] text-[color:var(--sol-gold)] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
                     <span>📖</span> Lore Fact & Race
                 </div>
                 <p id="lore-fact-text" class="text-xs text-slate-300 italic leading-relaxed">
@@ -579,15 +560,15 @@
 
     <!-- DAILY COMPLETE MODAL -->
     <div id="daily-complete-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-slate-900 border-2 border-yellow-500/50 p-6 sm:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl relative">
-            <h3 class="text-3xl font-black text-yellow-400 mb-1">Daily Complete! 🎉</h3>
+        <div class="bg-slate-900 border-2 border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] p-6 sm:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl relative">
+            <h3 class="text-3xl font-black text-[color:var(--sol-gold)] mb-1">Daily Complete! 🎉</h3>
             <p id="daily-unit-summary" class="text-xs text-slate-300 mb-4 font-semibold">
                 You evaluated today's champions using the 🍌 Banana scale!
             </p>
 
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 text-center">
-                <div class="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">Overall Scale Accuracy</div>
-                <div id="daily-total-score" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-green-400 font-mono">
+                <div class="text-xs text-[color:var(--sol-text-dim)] uppercase font-bold tracking-widest mb-1">Overall Scale Accuracy</div>
+                <div id="daily-total-score" class="text-4xl font-black text-[color:var(--sol-gold)] font-mono">
                     92.4%
                 </div>
             </div>
@@ -597,7 +578,7 @@
             </div>
 
             <div class="flex gap-3">
-                <button id="copy-share-btn" class="flex-1 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 uppercase">
+                <button id="copy-share-btn" class="flex-1 py-3 bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 uppercase">
                     <span>📋</span> COPY RESULTS
                 </button>
                 <button id="close-daily-btn" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm">

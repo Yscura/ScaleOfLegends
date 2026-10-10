@@ -1,6 +1,27 @@
+/* ===== Theme palette — edit these to retheme the whole app ===== */
+:root {
+    /* Primary hextech gold. Change --sol-gold-rgb (space-separated "R G B")
+       to recolour every gold accent — solid and translucent — at once. */
+    --sol-gold-rgb: 168 129 50;
+    --sol-gold: rgb(var(--sol-gold-rgb));
+    --sol-gold-hover: #d8ba7e;   /* lighter gold for button hovers */
+    --sol-gold-bright: #f0e6d2;  /* pale gold highlights / light text */
+    --sol-gold-soft: #cdbe91;    /* muted gold (banner text) */
+    --sol-gold-dim: #785a28;     /* dark gold (borders) */
+    --sol-teal: #0ac8b9;         /* secondary accent */
+
+    --sol-bg: #0a1119;           /* page background */
+    --sol-panel: #0a2335;        /* navy panels / boxes */
+    --sol-ink: #091016;          /* dark text on gold */
+    --sol-reveal: #1f1708;       /* dark gold box background */
+
+    --sol-text: #cdd7e0;         /* body text */
+    --sol-text-dim: #a0907a;     /* muted / tan text */
+}
+
 body {
-    background-color: #090d16;
-    color: #f8fafc;
+    background-color: var(--sol-bg);
+    color: var(--sol-text);
     font-family: 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
 }
@@ -22,10 +43,10 @@ input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
     height: 22px !important;
     cursor: pointer;
-    background: linear-gradient(90deg, #dc2626 0%, #f59e0b 50%, #06b6d4 100%);
+    background: linear-gradient(90deg, #13283b 0%, var(--sol-gold-dim) 55%, var(--sol-gold) 100%);
     border-radius: 12px;
     box-shadow: inset 0 2px 6px rgba(0,0,0,0.8);
-    border: 2px solid #f87171;
+    border: 2px solid var(--sol-gold-dim);
 }
 
 /* Slider Thumb Knob Styling */
@@ -33,43 +54,192 @@ input[type="range"]::-webkit-slider-thumb {
     height: 48px;
     width: 48px;
     border-radius: 50%;
-    background: #ef4444;
+    background: var(--sol-gold);
     cursor: grab;
     -webkit-appearance: none;
     margin-top: -14px;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), inset 0 0 8px #ffffff;
-    border: 4px solid #ffffff;
+    box-shadow: 0 0 22px rgb(var(--sol-gold-rgb) / 0.8), inset 0 0 8px var(--sol-gold-bright);
+    border: 4px solid var(--sol-gold-bright);
     transition: transform 0.1s, background-color 0.1s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.15);
-    background: #dc2626;
+    background: var(--sol-gold-hover);
 }
 
 input[type="range"]::-moz-range-track {
     width: 100%;
     height: 22px;
     cursor: pointer;
-    background: linear-gradient(90deg, #dc2626 0%, #f59e0b 50%, #06b6d4 100%);
+    background: linear-gradient(90deg, #13283b 0%, var(--sol-gold-dim) 55%, var(--sol-gold) 100%);
     border-radius: 12px;
-    border: 2px solid #f87171;
+    border: 2px solid var(--sol-gold-dim);
 }
 
 input[type="range"]::-moz-range-thumb {
     height: 48px;
     width: 48px;
     border-radius: 50%;
-    background: #ef4444;
+    background: var(--sol-gold);
     cursor: grab;
-    border: 4px solid #ffffff;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.9);
+    border: 4px solid var(--sol-gold-bright);
+    box-shadow: 0 0 22px rgb(var(--sol-gold-rgb) / 0.8);
 }
 
 .arena-container {
     height: 46vh;
     min-height: 380px;
     max-height: 560px;
+}
+
+/* Custom icons (assigned via data/icons.js) */
+.app-logo {
+    height: 5.75rem;
+    width: auto;
+    display: block;
+}
+@media (min-width: 840px) {
+    .app-logo { height: 7.25rem; }
+}
+/* ===== Icon-only mode bar + hover tooltip ===== */
+#mode-bar { position: relative; }
+#mode-bar::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    transform: translateY(-50%);
+    background: linear-gradient(to right, transparent, rgb(var(--sol-gold-rgb) / 0.25), var(--sol-teal), rgb(var(--sol-gold-rgb) / 0.25), transparent);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+}
+.mode-tab {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sol-panel);
+    border: 2px solid var(--sol-gold-dim);
+    color: var(--sol-gold-bright);
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.mode-tab:hover {
+    transform: translateY(-2px);
+    border-color: var(--sol-gold);
+}
+.mode-tab.active {
+    border-color: var(--sol-gold);
+    background: rgb(var(--sol-gold-rgb) / 0.14);
+    box-shadow: 0 0 14px rgb(var(--sol-gold-rgb) / 0.6);
+}
+.mode-tab-icon-img {
+    height: 26px;
+    width: 26px;
+    object-fit: contain;
+    display: block;
+}
+.mode-tab[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 9px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--sol-panel);
+    color: var(--sol-gold-bright);
+    border: 1px solid var(--sol-gold-dim);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+    z-index: 50;
+}
+.mode-tab[data-tooltip]::before {
+    content: "";
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: var(--sol-gold-dim);
+    opacity: 0;
+    transition: opacity .15s ease;
+    z-index: 50;
+    pointer-events: none;
+}
+.mode-tab[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.mode-tab[data-tooltip]:hover::before { opacity: 1; }
+
+/* ===== Home page mode cards ===== */
+.home-mode {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--sol-panel);
+    border: 1px solid var(--sol-gold-dim);
+    box-shadow: inset 0 0 0 1px rgba(10, 200, 185, 0.25);
+    cursor: pointer;
+    text-align: left;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.home-mode:hover {
+    transform: translateX(4px);
+    border-color: var(--sol-gold);
+    box-shadow: inset 0 0 0 1px rgba(10, 200, 185, 0.4), 0 0 18px rgb(var(--sol-gold-rgb) / 0.3);
+}
+.home-mode-icon {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sol-bg);
+    border: 2px solid var(--sol-gold);
+    font-size: 1.7rem;
+}
+.home-mode-icon-img {
+    height: 34px;
+    width: 34px;
+    object-fit: contain;
+    display: block;
+}
+.home-mode-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.home-mode-name {
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--sol-gold-bright);
+    line-height: 1.2;
+}
+.home-mode-tagline {
+    font-size: 0.75rem;
+    color: var(--sol-text-dim);
+    margin-top: 2px;
 }
 
 .character-scale {
@@ -84,8 +254,21 @@ input[type="range"]::-moz-range-thumb {
     background: #0f172a;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: var(--sol-gold-dim);
     border-radius: 4px;
+}
+
+/* Unify the Runeterra map pins to a dark navy + gold medallion look,
+   overriding the old per-region vivid colours. */
+.map-pin {
+    background: rgba(9, 17, 25, 0.9) !important;
+    color: var(--sol-gold-bright) !important;
+    border: 1px solid var(--sol-gold) !important;
+}
+.map-pin:hover,
+.map-pin.region-active {
+    background: rgba(11, 66, 129, 0.863) !important;
+    color: #ffffff !important;
 }
 
 .toast-enter {
@@ -135,8 +318,8 @@ input[type="range"]::-moz-range-thumb {
     bottom: 0;
     height: 3px;
     border-radius: 2px;
-    background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.7), transparent);
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    background: linear-gradient(to right, transparent, rgb(var(--sol-gold-rgb) / 0.8), transparent);
+    box-shadow: 0 0 10px rgb(var(--sol-gold-rgb) / 0.5);
 }
 .hl-card-correct {
     border-color: #4ade80 !important;
@@ -176,18 +359,18 @@ input[type="range"]::-moz-range-thumb {
     flex: 1;
     height: 2px;
     border-radius: 2px;
-    background: repeating-linear-gradient(to right, rgba(250, 204, 21, 0.5) 0 6px, transparent 6px 12px);
+    background: repeating-linear-gradient(to right, rgb(var(--sol-gold-rgb) / 0.5) 0 6px, transparent 6px 12px);
 }
 .ladder-gap:hover:not(:disabled) .ladder-gap-line {
-    background: rgba(250, 204, 21, 0.9);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+    background: rgb(var(--sol-gold-rgb) / 0.95);
+    box-shadow: 0 0 8px rgb(var(--sol-gold-rgb) / 0.6);
 }
 .ladder-gap-label {
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #fde047;
+    color: var(--sol-gold);
     white-space: nowrap;
 }
 .ladder-card {
@@ -222,7 +405,7 @@ input[type="range"]::-moz-range-thumb {
     font-family: ui-monospace, monospace;
     font-size: 12px;
     font-weight: 700;
-    color: #67e8f9;
+    color: var(--sol-gold);
 }
 .ladder-card-correct {
     border-color: #4ade80;
@@ -249,7 +432,7 @@ input[type="range"]::-moz-range-thumb {
 .map-pin.region-active {
     transform: scale(1.15);
     z-index: 30;
-    box-shadow: 0 0 22px rgba(250, 204, 21, 0.85);
+    box-shadow: 0 0 22px rgb(var(--sol-gold-rgb) / 0.85);
 }
 
 /* --- Dynamic Runeterra vector map --- */
@@ -315,7 +498,7 @@ input[type="range"]::-moz-range-thumb {
 }
 /* Highlight the region whose pin (or land) is hovered/active */
 .region-land.region-active {
-    stroke: rgba(250, 204, 21, 0.95);
+    stroke: rgb(var(--sol-gold-rgb) / 0.95);
     stroke-width: 0.8;
-    filter: brightness(1.35) drop-shadow(0 0 3px rgba(250, 204, 21, 0.9));
+    filter: brightness(1.35) drop-shadow(0 0 3px rgb(var(--sol-gold-rgb) / 0.9));
 }
