@@ -51,6 +51,9 @@
     <!-- Icon-only mode bar (populated from data/modes.js). Hover an icon for its name. -->
     <nav id="mode-bar" class="w-full max-w-4xl mb-5 flex gap-2 sm:gap-3 justify-center items-center flex-wrap"></nav>
 
+    <!-- Slim info bar: shows result detail on a loss (no popups). -->
+    <div id="info-bar" class="hidden w-full max-w-4xl mb-4"></div>
+
     <main class="w-full max-w-4xl flex-grow flex flex-col bg-slate-900/60 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden relative">
 
         <!-- VIEW 0: HOME / MODE SELECT -->
@@ -399,6 +402,10 @@
                 <button id="order-submit-btn" class="w-full py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-xl transition-all active:scale-95 uppercase">
                     CHECK ORDER
                 </button>
+                <div class="text-center flex items-center justify-center gap-6">
+                    <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">STREAK: <span id="order-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                    <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="order-best" class="text-[color:var(--sol-teal)] text-lg font-black font-sans ml-1">0</span></div>
+                </div>
             </div>
         </section>
 
@@ -406,7 +413,7 @@
         <section id="view-higher-lower" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
             <div class="text-center mb-4">
                 <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">STREAK MODE</span>
-                <h3 class="text-2xl font-black text-white">Who is Lore Taller?</h3>
+                <h3 class="text-2xl font-black text-white">Who is Taller?</h3>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow items-center max-w-2xl mx-auto w-full">
@@ -458,7 +465,7 @@
             <div class="text-center mb-2">
                 <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">THE PRICE IS RIGHT</span>
                 <h3 class="text-xl sm:text-2xl font-black text-[color:var(--sol-gold-bright)]">How tall is <span id="price-champ-name" class="text-[color:var(--sol-gold)]">Teemo</span>?</h3>
-                <p class="text-xs text-[color:var(--sol-text-dim)]">Guess as close as you can — but go over and you BUST!</p>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Closer scores more — within 5% doubles. Too low scores 0, going over BUSTS!</p>
             </div>
 
             <div class="flex flex-col items-center flex-grow justify-center max-w-xl mx-auto w-full gap-3">
@@ -484,7 +491,7 @@
                     <input type="range" id="price-slider" min="0" max="1000" step="1" value="211">
                 </div>
                 <button id="price-lock-btn" class="w-full mt-3 py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.35)] transition-all active:scale-95 uppercase">
-                    LOCK IN PRICE
+                    LOCK IN GUESS
                 </button>
             </div>
 
@@ -499,7 +506,7 @@
             <div class="text-center mb-2">
                 <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">SCALE LADDER</span>
                 <h3 class="text-xl sm:text-2xl font-black text-white">Where does <span id="ladder-champ-name" class="text-[color:var(--sol-gold)]">Teemo</span> fit?</h3>
-                <p class="text-xs text-[color:var(--sol-text-dim)]">Slot each champion into the height-sorted ladder — shortest at top.</p>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Slot each champion into the height-sorted ladder — tallest at top, shortest at bottom.</p>
             </div>
 
             <div class="flex gap-4 flex-grow max-w-2xl mx-auto w-full min-h-0">

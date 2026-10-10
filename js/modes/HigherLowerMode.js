@@ -132,7 +132,9 @@ export class HigherLowerMode extends BaseMode {
         if (isCorrect) {
             this.audio.play('success');
             this.hlStreak++;
-            document.getElementById('hl-score').innerText = this.hlStreak;
+            const scoreEl = document.getElementById('hl-score');
+            scoreEl.innerText = this.hlStreak;
+            this.game.bumpScore(scoreEl);
             rightCard.classList.add('hl-card-correct');
 
             const isMilestone = this.hlStreak % 5 === 0;
@@ -141,6 +143,7 @@ export class HigherLowerMode extends BaseMode {
 
             if (this.store.recordBestStreak(HL_BEST_KEY, this.hlStreak)) {
                 this.updateBestDisplay();
+                this.game.bumpScore(document.getElementById('hl-best'));
             }
 
             setTimeout(() => this.nextRound(), isMilestone ? 2000 : 1700);
@@ -153,10 +156,13 @@ export class HigherLowerMode extends BaseMode {
             this.store.recordBestStreak(HL_BEST_KEY, this.hlStreak);
             this.updateBestDisplay();
             const finalStreak = this.hlStreak;
-            setTimeout(() => {
-                this.showToast(`${this.hlRightChamp.name} is ${ScaleUtils.formatHeight(this.hlRightChamp.height, this.unitSystem)}. Final streak: ${finalStreak}`, 'error');
-                this.startHigherLowerGame();
-            }, 2400);
+
+            const scoreEl = document.getElementById('hl-score');
+            scoreEl.innerText = 0;
+            this.game.shakeScore(scoreEl);
+            this.game.showInfo(`${this.hlRightChamp.name} is ${ScaleUtils.formatHeight(this.hlRightChamp.height, this.unitSystem)} — final streak ${finalStreak}.`);
+
+            setTimeout(() => this.startHigherLowerGame(), 2400);
         }
     }
 }

@@ -42,16 +42,20 @@ export class RegionMode extends BaseMode {
         if (clickedRegion === targetRegion) {
             this.audio.play('success');
             this.regionStreak++;
-            document.getElementById('region-score').innerText = this.regionStreak;
+            const scoreEl = document.getElementById('region-score');
+            scoreEl.innerText = this.regionStreak;
+            this.game.bumpScore(scoreEl);
             this.game.flashVerdict('CORRECT', 'good');
-            this.showToast(`Correct! ${this.regionTargetChamp.name} hails from ${targetRegion.replace('_', ' ').toUpperCase()}! 🎉`, 'success');
             setTimeout(() => this.startRegionGame(), 1500);
         } else {
             this.audio.play('fail');
             this.game.flashVerdict('WRONG', 'bad');
-            this.showToast(`Wrong region! ${this.regionTargetChamp.name} is actually from ${targetRegion.replace('_', ' ').toUpperCase()}! Final streak: ${this.regionStreak}`, 'error');
+            const finalStreak = this.regionStreak;
             this.regionStreak = 0;
-            document.getElementById('region-score').innerText = 0;
+            const scoreEl = document.getElementById('region-score');
+            scoreEl.innerText = 0;
+            this.game.shakeScore(scoreEl);
+            this.game.showInfo(`${this.regionTargetChamp.name} is from ${targetRegion.replace('_', ' ').toUpperCase()} — streak ${finalStreak}.`);
             setTimeout(() => this.startRegionGame(), 2200);
         }
     }

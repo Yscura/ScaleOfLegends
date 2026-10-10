@@ -72,11 +72,16 @@ export class LadderMode extends BaseMode {
         const container = document.getElementById('ladder-container');
         container.innerHTML = '';
 
-        container.appendChild(this.buildGap(0, 'Shortest'));
-        this.ladder.forEach((champ, i) => {
-            container.appendChild(this.buildCard(champ, i));
-            container.appendChild(this.buildGap(i + 1, i + 1 === this.ladder.length ? 'Tallest' : null));
-        });
+        // The ladder array stays sorted ascending (index 0 = shortest), but we
+        // render it top-to-bottom reversed so the tallest sits at the top and the
+        // shortest at the bottom. Gap `data-slot` values remain ascending
+        // insertion indices, so the placement logic is unaffected.
+        const n = this.ladder.length;
+        container.appendChild(this.buildGap(n, 'Tallest'));
+        for (let i = n - 1; i >= 0; i--) {
+            container.appendChild(this.buildCard(this.ladder[i], i));
+            container.appendChild(this.buildGap(i, i === 0 ? 'Shortest' : null));
+        }
     }
 
     buildGap(slot, label) {
@@ -123,10 +128,15 @@ export class LadderMode extends BaseMode {
         if (isCorrect) {
             this.audio.play('success');
             this.score++;
-            document.getElementById('ladder-score').innerText = this.score;
+            const scoreEl = document.getElementById('ladder-score');
+            scoreEl.innerText = this.score;
+            this.game.bumpScore(scoreEl);
 
             if (this.score % 5 === 0) this.game.flashVerdict(`🔥 ${this.score} PLACED!`, 'hot');
-            if (this.store.recordBestStreak(LADDER_BEST_KEY, this.score)) this.updateBestDisplay();
+            if (this.store.recordBestStreak(LADDER_BEST_KEY, this.score)) {
+                this.updateBestDisplay();
+                this.game.bumpScore(document.getElementById('ladder-best'));
+            }
 
             setTimeout(() => {
                 this.flash = null;
@@ -141,10 +151,13 @@ export class LadderMode extends BaseMode {
             this.store.recordBestStreak(LADDER_BEST_KEY, this.score);
             this.updateBestDisplay();
             const finalScore = this.score;
-            setTimeout(() => {
-                this.showToast(`Wrong slot! You placed ${finalScore}. New ladder!`, 'error');
-                this.startRun();
-            }, 2400);
+
+            const scoreEl = document.getElementById('ladder-score');
+            scoreEl.innerText = 0;
+            this.game.shakeScore(scoreEl);
+            this.game.showInfo(`Wrong slot — you placed ${finalScore}.`);
+
+            setTimeout(() => this.startRun(), 2400);
         }
     }
 }

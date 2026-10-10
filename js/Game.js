@@ -137,6 +137,7 @@ export class ScaleOfLegendsGame {
     showHome() {
         this.currentMode = 'home';
         document.body.classList.add('is-home');
+        this.clearInfo();
         document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
         VIEW_IDS.forEach(id => {
             const el = document.getElementById(id);
@@ -170,7 +171,8 @@ export class ScaleOfLegendsGame {
             benchmarkSelect: document.getElementById('benchmark-select'),
             dailyUnitBadge: document.getElementById('daily-unit-badge'),
             toastContainer: document.getElementById('toast-container'),
-            verdictStamp: document.getElementById('verdict-stamp')
+            verdictStamp: document.getElementById('verdict-stamp'),
+            infoBar: document.getElementById('info-bar')
         };
     }
 
@@ -267,6 +269,43 @@ export class ScaleOfLegendsGame {
         el.classList.add('shake');
     }
 
+    /** Pops a score/streak number larger for a beat when it increases. */
+    bumpScore(el) {
+        if (!el) return;
+        el.classList.remove('score-bump');
+        void el.offsetWidth;
+        el.classList.add('score-bump');
+    }
+
+    /** Shakes a score/streak number (used when it crashes back to 0). */
+    shakeScore(el) {
+        if (!el) return;
+        el.classList.remove('score-shake');
+        void el.offsetWidth;
+        el.classList.add('score-shake');
+    }
+
+    /**
+     * Shows a slim info bar (under the mode bar) with the detail of a result.
+     * Used on losses only — correct answers rely on the verdict + score pop.
+     */
+    showInfo(message, tone = 'loss') {
+        const bar = this.elements.infoBar;
+        if (!bar) return;
+        const icon = tone === 'loss' ? '💀' : 'ℹ️';
+        bar.innerHTML = `<div class="info-bar info-${tone}"><span>${icon}</span><span>${message}</span></div>`;
+        bar.classList.remove('hidden');
+        clearTimeout(this._infoTimer);
+        this._infoTimer = setTimeout(() => this.clearInfo(), 6000);
+    }
+
+    clearInfo() {
+        const bar = this.elements.infoBar;
+        if (!bar) return;
+        bar.classList.add('hidden');
+        bar.innerHTML = '';
+    }
+
     /**
      * Animates `el`'s text from `from` to `to` over `duration` ms, running each
      * intermediate value through `format`. Used for the height count-up reveal.
@@ -287,6 +326,7 @@ export class ScaleOfLegendsGame {
         this.currentMode = mode;
         this.activeMode = this.modes[mode];
         document.body.classList.remove('is-home');
+        this.clearInfo();
 
         document.querySelectorAll('.mode-tab').forEach(btn => {
             btn.classList.toggle('active', btn.id === `tab-${mode}`);

@@ -103,27 +103,61 @@ export class PriceMode extends BaseMode {
 
             this.store.recordBestStreak(PRICE_BEST_KEY, this.score);
             this.updateBestDisplay();
-            const finalScore = this.score;
-            setTimeout(() => {
-                this.showToast(`Busted on ${this.champ.name}! Final score: ${finalScore}. New run!`, 'error');
-                this.startRun();
-            }, 2600);
+
+            const scoreEl = document.getElementById('price-score');
+            scoreEl.innerText = 0;
+            this.game.shakeScore(scoreEl);
+
+            setTimeout(() => this.startRun(), 2600);
         } else {
-            this.audio.play('success');
             const margin = actual - guess;
-            const marginRatio = margin / actual;
-            const points = Math.max(0, Math.round(100 * (1 - marginRatio)));
-            const perfect = marginRatio <= 0.03;
+            const marginRatio = margin / actual; // 0 = perfect, larger = safer
 
-            this.score += points;
-            document.getElementById('price-score').innerText = this.score;
-            this.game.flashVerdict(perfect ? `PERFECT! +${points}` : `SAFE +${points}`, perfect ? 'hot' : 'good');
+            // Guessing more than SAFE_LIMIT under earns nothing; within PERFECT doubles.
+            const SAFE_LIMIT = 0.25;
+            const PERFECT = 0.05;
+            let points = 0;
+            let doubled = false;
+            if (marginRatio <= SAFE_LIMIT) {
+                points = Math.round(100 * (1 - marginRatio / SAFE_LIMIT));
+                if (marginRatio <= PERFECT) {
+                    points *= 2;
+                    doubled = true;
+                }
+            }
 
-            reveal.innerHTML =
-                `<span class="text-green-400">Safe! ${ScaleUtils.formatHeight(margin, this.unitSystem)} under (+${points})</span><br>` +
-                `<span class="text-[color:var(--sol-text-dim)]">${this.champ.name} is ${actualStr}</span>`;
+            const marginStr = ScaleUtils.formatHeight(margin, this.unitSystem);
+            const champLine = `<span class="text-[color:var(--sol-text-dim)]">${this.champ.name} is ${actualStr}</span>`;
+            const scoreEl = document.getElementById('price-score');
 
-            if (this.store.recordBestStreak(PRICE_BEST_KEY, this.score)) this.updateBestDisplay();
+            if (points > 0) {
+                this.audio.play('success');
+                this.score += points;
+                scoreEl.innerText = this.score;
+                this.game.bumpScore(scoreEl);
+
+                if (doubled) {
+                    this.game.flashVerdict(`PERFECT ×2! +${points}`, 'hot');
+                    reveal.innerHTML =
+                        `<span class="text-green-400">Bullseye! ${marginStr} under — +${points} <strong>(×2 precision bonus!)</strong></span><br>${champLine}`;
+                } else {
+                    this.game.flashVerdict(`SAFE +${points}`, 'good');
+                    reveal.innerHTML =
+                        `<span class="text-green-400">Safe! ${marginStr} under (+${points})</span><br>${champLine}`;
+                }
+
+                if (this.store.recordBestStreak(PRICE_BEST_KEY, this.score)) {
+                    this.updateBestDisplay();
+                    this.game.bumpScore(document.getElementById('price-best'));
+                }
+            } else {
+                // Survived, but played it too safe — no points.
+                this.audio.play('tick');
+                this.game.flashVerdict('TOO SAFE · +0', 'warn');
+                reveal.innerHTML =
+                    `<span class="text-[color:var(--sol-gold-soft)]">Too safe — ${marginStr} under. No points this time!</span><br>${champLine}`;
+            }
+
             setTimeout(() => this.nextRound(), 2200);
         }
     }
