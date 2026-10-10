@@ -4,7 +4,11 @@ import { CHAMPIONS } from '../data/champions.js';
 
 const HL_BEST_KEY = 'sol_hl_best';
 
-/** Streak mode: guess whether the target champion is taller or shorter. */
+/**
+ * Streak mode: guess whether the target champion is taller or shorter than the
+ * reference. One miss ends the run; the height gap between the two champions
+ * narrows as your streak climbs, so it gets harder the longer you go.
+ */
 export class HigherLowerMode extends BaseMode {
     constructor(game) {
         super(game);
@@ -33,20 +37,43 @@ export class HigherLowerMode extends BaseMode {
         document.getElementById('hl-best').innerText = this.store.getBestStreak(HL_BEST_KEY);
     }
 
+    /** Pick a target whose height gap to the reference narrows as the streak grows. */
+    pickRight() {
+        const left = this.hlLeftChamp;
+        const difficulty = Math.min(1, this.hlStreak / 12);
+        const targetRatio = 2.6 - 1.5 * difficulty; // 2.6x gap (easy) -> ~1.1x (hard)
+
+        const recentIds = new Set(this.store.recentPicks.map(c => c.id));
+        let pool = CHAMPIONS.filter(c =>
+            c.id !== left.id && c.height !== left.height && !recentIds.has(c.id));
+        if (pool.length === 0) pool = CHAMPIONS.filter(c => c.id !== left.id);
+
+        const scored = pool
+            .map(c => {
+                const ratio = Math.max(c.height, left.height) / Math.min(c.height, left.height);
+                return { c, dist: Math.abs(ratio - targetRatio) };
+            })
+            .sort((a, b) => a.dist - b.dist);
+
+        const pick = scored[Math.floor(Math.random() * Math.min(6, scored.length))].c;
+        this.store.recordPick(pick);
+        return pick;
+    }
+
     startHigherLowerGame() {
         this.hlStreak = 0;
         document.getElementById('hl-score').innerText = this.hlStreak;
 
         this.hlLeftChamp = this.store.selectDiverseChampion(CHAMPIONS);
-        this.hlRightChamp = this.store.selectDiverseChampion(CHAMPIONS, [this.hlLeftChamp.id]);
+        this.hlRightChamp = this.pickRight();
 
         this.resetRoundView();
     }
 
-    /** Advance after a correct guess: the target becomes the new reference. */
+    /** Advance a round: the target becomes the new reference. */
     nextRound() {
         this.hlLeftChamp = this.hlRightChamp;
-        this.hlRightChamp = this.store.selectDiverseChampion(CHAMPIONS, [this.hlLeftChamp.id]);
+        this.hlRightChamp = this.pickRight();
         this.resetRoundView();
     }
 
@@ -109,11 +136,8 @@ export class HigherLowerMode extends BaseMode {
             rightCard.classList.add('hl-card-correct');
 
             const isMilestone = this.hlStreak % 5 === 0;
-            if (isMilestone) {
-                this.game.flashVerdict(`🔥 ${this.hlStreak} STREAK!`, 'hot');
-            } else {
-                this.game.flashVerdict('CORRECT +1', 'good');
-            }
+            this.game.flashVerdict(isMilestone ? `🔥 ${this.hlStreak} STREAK!` : 'CORRECT +1',
+                isMilestone ? 'hot' : 'good');
 
             if (this.store.recordBestStreak(HL_BEST_KEY, this.hlStreak)) {
                 this.updateBestDisplay();
@@ -128,7 +152,6 @@ export class HigherLowerMode extends BaseMode {
 
             this.store.recordBestStreak(HL_BEST_KEY, this.hlStreak);
             this.updateBestDisplay();
-
             const finalStreak = this.hlStreak;
             setTimeout(() => {
                 this.showToast(`${this.hlRightChamp.name} is ${ScaleUtils.formatHeight(this.hlRightChamp.height, this.unitSystem)}. Final streak: ${finalStreak}`, 'error');

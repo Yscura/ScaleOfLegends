@@ -20,8 +20,11 @@ export class ArenaMode extends BaseMode {
 
     // --- Shared control hooks ---
     onSliderInput() {
-        const guessCm = ScaleUtils.sliderToCm(this.elements.slider.value);
-        this.audio.play('tick');
+        const val = this.elements.slider.value;
+        const guessCm = ScaleUtils.sliderToCm(val);
+        // Pitch rises with the slider position so a drag sweeps pleasantly.
+        const frequency = 300 + (val / 1000) * 500;
+        this.audio.play('tick', { frequency });
         this.updateVisualScale(guessCm);
     }
 
@@ -54,12 +57,6 @@ export class ArenaMode extends BaseMode {
 
         const bCm = b.height;
         const dynamicCeilingCm = Math.max(250, guessCm * 1.2, bCm * 1.2);
-
-        if (this.isDaily) {
-            this.elements.arenaCeilingText.innerText = "Arena Ceiling";
-        } else {
-            this.elements.arenaCeilingText.innerText = ScaleUtils.formatHeight(dynamicCeilingCm, this.unitSystem);
-        }
 
         const baselinePct = (bCm / dynamicCeilingCm) * 100;
         const champPct = (guessCm / dynamicCeilingCm) * 100;

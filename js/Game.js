@@ -8,12 +8,16 @@ import { SandboxMode } from './modes/SandboxMode.js';
 import { RegionMode } from './modes/RegionMode.js';
 import { OrderMode } from './modes/OrderMode.js';
 import { HigherLowerMode } from './modes/HigherLowerMode.js';
+import { OverUnderMode } from './modes/OverUnderMode.js';
+import { LadderMode } from './modes/LadderMode.js';
 
 const VIEW_IDS = [
     'view-scaling-arena',
     'view-region-game',
     'view-order-game',
     'view-higher-lower',
+    'view-over-under',
+    'view-ladder',
     'daily-banner-notice'
 ];
 
@@ -41,7 +45,9 @@ export class ScaleOfLegendsGame {
             sandbox: new SandboxMode(this),
             region: new RegionMode(this),
             order: new OrderMode(this),
-            higherlower: new HigherLowerMode(this)
+            higherlower: new HigherLowerMode(this),
+            overunder: new OverUnderMode(this),
+            ladder: new LadderMode(this)
         };
         this.activeMode = this.modes.daily;
 
@@ -98,6 +104,9 @@ export class ScaleOfLegendsGame {
         document.getElementById('hl-btn-higher').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(true));
         document.getElementById('hl-btn-lower').addEventListener('click', () => this.modes.higherlower.handleHigherLowerGuess(false));
 
+        document.getElementById('ou-btn-taller').addEventListener('click', () => this.modes.overunder.handleGuess(true));
+        document.getElementById('ou-btn-shorter').addEventListener('click', () => this.modes.overunder.handleGuess(false));
+
         // Map Pin Region Clicks + outline cross-highlighting
         const regionTargets = document.querySelectorAll('#view-region-game [data-region]');
         const setRegionActive = (region, active) => {
@@ -116,7 +125,7 @@ export class ScaleOfLegendsGame {
             document.getElementById('daily-complete-modal').classList.add('hidden');
         });
 
-        const tabs = ['daily', 'region', 'order', 'higherlower', 'sandbox'];
+        const tabs = ['daily', 'region', 'order', 'higherlower', 'overunder', 'ladder', 'sandbox'];
         tabs.forEach(mode => {
             const tabBtn = document.getElementById(`tab-${mode}`);
             if (tabBtn) {
@@ -227,7 +236,6 @@ export class ScaleOfLegendsGame {
             this.elements.baselineHeightText.innerText = "Daily Reference Unit";
             this.elements.sliderMinLabel.innerText = `0.1× ${b.unitSingular}`;
             this.elements.sliderMaxLabel.innerText = `500× ${b.unitSingular}`;
-            this.elements.arenaCeilingText.innerText = "Arena Ceiling";
             this.elements.unitToggleBtn.classList.add('hidden');
         } else {
             this.elements.baselineHeightText.innerText = ScaleUtils.formatHeight(b.height, this.unitSystem);

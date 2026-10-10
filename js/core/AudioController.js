@@ -2,6 +2,7 @@ export class AudioController {
     constructor() {
         this.ctx = null;
         this.muted = false;
+        this.lastTickAt = 0;
     }
 
     init() {
@@ -16,11 +17,19 @@ export class AudioController {
         }
     }
 
-    play(type) {
+    play(type, opts = {}) {
         if (this.muted) return;
         try {
             this.init();
             if (!this.ctx) return;
+
+            // Throttle rapid ticks (e.g. fast slider drags) so the short blips
+            // never pile up and overlap into a harsh buzz.
+            if (type === 'tick') {
+                const nowMs = performance.now();
+                if (nowMs - this.lastTickAt < 50) return;
+                this.lastTickAt = nowMs;
+            }
 
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -30,11 +39,11 @@ export class AudioController {
             const now = this.ctx.currentTime;
             if (type === 'tick') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                osc.frequency.setValueAtTime(opts.frequency || 400, now);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
                 osc.start();
-                osc.stop(now + 0.04);
+                osc.stop(now + 0.03);
             } else if (type === 'success') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(523.25, now);

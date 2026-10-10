@@ -65,6 +65,14 @@
             <span>⚔️</span> Bigger?
         </button>
 
+        <button id="tab-overunder" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
+            <span>⚖️</span> Over/Under
+        </button>
+
+        <button id="tab-ladder" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
+            <span>🪜</span> Scale Ladder
+        </button>
+
         <button id="tab-sandbox" class="mode-tab flex-1 min-w-[110px] py-2.5 px-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5">
             <span>🛠️</span> Practice
         </button>
@@ -105,10 +113,6 @@
 
                 <!-- Left Column: Baseline Reference Object -->
                 <div class="relative z-10 flex flex-col items-center justify-end h-full w-1/3 max-w-[220px]">
-                    <div class="absolute top-2 text-center w-full opacity-60 pointer-events-none">
-                        <span class="text-[9px] text-slate-400 font-mono block tracking-widest">ARENA CEILING</span>
-                        <span id="arena-ceiling-text" class="text-xs text-yellow-300 font-bold font-mono">5.00 m</span>
-                    </div>
 
                     <!-- Dynamic Benchmark Selector -->
                     <div id="benchmark-selector-container" class="mb-2 w-full px-1">
@@ -464,6 +468,74 @@
             <div class="text-center mt-4 flex items-center justify-center gap-6">
                 <div class="text-slate-400 text-xs font-mono">STREAK: <span id="hl-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
                 <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="hl-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: OVER / UNDER A BENCHMARK -->
+        <section id="view-over-under" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
+            <div class="text-center mb-2">
+                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">SCALE INSTINCT</span>
+                <h3 class="text-xl sm:text-2xl font-black text-white">Taller or shorter than <span id="ou-bench-name" class="text-yellow-400">a Banana</span>?</h3>
+                <p class="text-xs text-slate-400">Judge the champion against the reference object.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 flex-grow items-center max-w-2xl mx-auto w-full">
+                <!-- Benchmark -->
+                <div class="bg-slate-900 border-2 border-yellow-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[320px] relative overflow-hidden shadow-xl">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">REFERENCE</span>
+                    <h4 id="ou-bench-title" class="text-lg font-black text-yellow-300">Banana</h4>
+                    <div class="hl-stage h-40 w-full my-2 flex items-end justify-center relative">
+                        <div class="hl-ground"></div>
+                        <div id="ou-bench-svg" class="hl-portrait h-full flex items-end justify-center"></div>
+                    </div>
+                    <div id="ou-bench-height" class="invisible bg-yellow-950/80 border border-yellow-500/50 px-4 py-1.5 rounded-xl text-yellow-300 font-mono font-bold text-lg">0.18 m</div>
+                </div>
+                <!-- Champion -->
+                <div id="ou-champ-card" class="bg-slate-900 border-2 border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-between text-center h-full max-h-[320px] relative overflow-hidden shadow-xl transition-all duration-300">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">CHAMPION</span>
+                    <h4 id="ou-champ-name" class="text-lg font-black text-cyan-300">Darius</h4>
+                    <div class="hl-stage h-40 w-full my-2 flex items-end justify-center relative">
+                        <div class="hl-ground"></div>
+                        <img id="ou-champ-img" src="" class="hl-portrait h-full object-contain rounded-lg drop-shadow-md" alt="Champ">
+                    </div>
+                    <div id="ou-champ-height" class="invisible bg-cyan-950/80 border border-cyan-500/50 px-4 py-1.5 rounded-xl text-cyan-300 font-mono font-bold text-lg">0 m</div>
+                </div>
+            </div>
+
+            <div id="ou-actions" class="flex gap-2 mt-3 max-w-2xl mx-auto w-full">
+                <button id="ou-btn-taller" class="flex-1 py-3 bg-green-500 hover:bg-green-400 text-slate-950 font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg">▲ TALLER</button>
+                <button id="ou-btn-shorter" class="flex-1 py-3 bg-red-500 hover:bg-red-400 text-slate-950 font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg">▼ SHORTER</button>
+            </div>
+
+            <div class="text-center mt-3 flex items-center justify-center gap-6">
+                <div class="text-slate-400 text-xs font-mono">SCORE: <span id="ou-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="ou-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
+            </div>
+        </section>
+
+        <!-- VIEW 6: SCALE LADDER -->
+        <section id="view-ladder" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
+            <div class="text-center mb-2">
+                <span class="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">SCALE LADDER</span>
+                <h3 class="text-xl sm:text-2xl font-black text-white">Where does <span id="ladder-champ-name" class="text-yellow-400">Teemo</span> fit?</h3>
+                <p class="text-xs text-slate-400">Slot each champion into the height-sorted ladder — shortest at top.</p>
+            </div>
+
+            <div class="flex gap-4 flex-grow max-w-2xl mx-auto w-full min-h-0">
+                <!-- Champion to place -->
+                <div class="w-1/3 flex flex-col items-center justify-center bg-slate-900 border-2 border-yellow-500/40 rounded-2xl p-3 shadow-xl shrink-0">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">PLACE THIS</span>
+                    <img id="ladder-champ-img" src="" class="h-24 sm:h-28 object-contain rounded-lg drop-shadow-md my-2" alt="Champ">
+                    <h4 id="ladder-champ-title" class="text-sm font-black text-yellow-300 text-center line-clamp-1">Teemo</h4>
+                    <span class="text-[10px] text-slate-500 font-mono mt-1">height: ???</span>
+                </div>
+                <!-- Sorted ladder with insertion slots -->
+                <div id="ladder-container" class="w-2/3 overflow-y-auto pr-1 flex flex-col"></div>
+            </div>
+
+            <div class="text-center mt-3 flex items-center justify-center gap-6">
+                <div class="text-slate-400 text-xs font-mono">PLACED: <span id="ladder-score" class="text-yellow-400 text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-slate-400 text-xs font-mono">🏆 BEST: <span id="ladder-best" class="text-cyan-400 text-lg font-black font-sans ml-1">0</span></div>
             </div>
         </section>
 

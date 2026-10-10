@@ -157,6 +157,89 @@ input[type="range"]::-moz-range-thumb {
     80% { transform: translateX(3px); }
 }
 
+/* --- Scale Ladder --- */
+.ladder-gap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 5px 2px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+}
+.ladder-gap:hover:not(:disabled) { opacity: 1; }
+.ladder-gap:disabled { cursor: default; }
+.ladder-gap-line {
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: repeating-linear-gradient(to right, rgba(250, 204, 21, 0.5) 0 6px, transparent 6px 12px);
+}
+.ladder-gap:hover:not(:disabled) .ladder-gap-line {
+    background: rgba(250, 204, 21, 0.9);
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+}
+.ladder-gap-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fde047;
+    white-space: nowrap;
+}
+.ladder-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+}
+.ladder-card-img {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    flex-shrink: 0;
+}
+.ladder-card-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 800;
+    color: #e2e8f0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ladder-card-height {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #67e8f9;
+}
+.ladder-card-correct {
+    border-color: #4ade80;
+    box-shadow: 0 0 14px rgba(74, 222, 128, 0.5);
+    animation: ladderPop 0.4s ease;
+}
+.ladder-card-wrong {
+    border-color: #f87171;
+    box-shadow: 0 0 14px rgba(248, 113, 113, 0.5);
+    animation: ladderPop 0.4s ease;
+}
+@keyframes ladderPop {
+    0% { transform: scale(0.85); opacity: 0.4; }
+    60% { transform: scale(1.04); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 /* Map Pin Pulse */
 .map-pin {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
