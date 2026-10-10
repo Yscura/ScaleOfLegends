@@ -87,10 +87,12 @@ export class OrderMode extends BaseMode {
 
         if (isCorrect) {
             this.audio.play('success');
+            this.game.flashVerdict('PERFECT!', 'good');
             this.showToast("Perfect Order! You sorted all 4 champions correctly! 🎉", 'success');
             setTimeout(() => this.startOrderGame(), 2200);
         } else {
             this.audio.play('fail');
+            this.game.flashVerdict('NOT QUITE', 'bad');
             this.showToast("Incorrect order! Check the revealed heights below.", 'error');
             setTimeout(() => this.startOrderGame(), 3000);
         }

@@ -74,7 +74,8 @@ export class ScaleOfLegendsGame {
             streakCounter: document.getElementById('streak-counter'),
             benchmarkSelect: document.getElementById('benchmark-select'),
             dailyUnitBadge: document.getElementById('daily-unit-badge'),
-            toastContainer: document.getElementById('toast-container')
+            toastContainer: document.getElementById('toast-container'),
+            verdictStamp: document.getElementById('verdict-stamp')
         };
     }
 
@@ -146,6 +147,47 @@ export class ScaleOfLegendsGame {
             toast.style.transition = 'opacity 0.3s';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    /**
+     * Flashes a big central verdict stamp (e.g. "CORRECT +1" / "WRONG") so the
+     * player gets an unmistakable, deliberate beat on whether they were right.
+     * `tone` controls colour: 'good' | 'bad' | 'hot'.
+     */
+    flashVerdict(label, tone = 'good') {
+        const el = this.elements.verdictStamp;
+        if (!el) return;
+        el.textContent = label;
+        el.className = `verdict-stamp verdict-${tone}`;
+        // Force a reflow so the animation restarts on rapid successive calls.
+        void el.offsetWidth;
+        el.classList.add('verdict-show');
+        clearTimeout(this._verdictTimer);
+        this._verdictTimer = setTimeout(() => el.classList.remove('verdict-show'), 1150);
+    }
+
+    /** Briefly shakes an element (used on a wrong answer). */
+    shake(el) {
+        if (!el) return;
+        el.classList.remove('shake');
+        void el.offsetWidth;
+        el.classList.add('shake');
+    }
+
+    /**
+     * Animates `el`'s text from `from` to `to` over `duration` ms, running each
+     * intermediate value through `format`. Used for the height count-up reveal.
+     */
+    animateCount(el, from, to, duration, format) {
+        if (!el) return;
+        const start = performance.now();
+        const tick = (now) => {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            el.textContent = format(from + (to - from) * eased);
+            if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
     }
 
     switchMode(mode) {
