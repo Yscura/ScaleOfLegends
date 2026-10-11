@@ -51,6 +51,7 @@ export class RegionMode extends BaseMode {
             this.audio.play('fail');
             this.game.flashVerdict('WRONG', 'bad');
             const finalStreak = this.regionStreak;
+            this.store.recordGamePlayed('region', finalStreak);
             this.regionStreak = 0;
             const scoreEl = document.getElementById('region-score');
             scoreEl.innerText = 0;

@@ -184,6 +184,7 @@ export class OrderMode extends BaseMode {
             this.audio.play('fail');
             this.game.flashVerdict('NOT QUITE', 'bad');
             const finalStreak = this.orderStreak;
+            this.store.recordGamePlayed('order', finalStreak);
             this.orderStreak = 0;
             scoreEl.innerText = 0;
             this.game.shakeScore(scoreEl);

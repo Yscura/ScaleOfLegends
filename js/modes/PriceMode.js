@@ -103,6 +103,7 @@ export class PriceMode extends BaseMode {
 
             this.store.recordBestStreak(PRICE_BEST_KEY, this.score);
             this.updateBestDisplay();
+            this.store.recordGamePlayed('price', this.score);
 
             const scoreEl = document.getElementById('price-score');
             scoreEl.innerText = 0;

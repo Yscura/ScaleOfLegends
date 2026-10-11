@@ -156,6 +156,7 @@ export class HigherLowerMode extends BaseMode {
             this.store.recordBestStreak(HL_BEST_KEY, this.hlStreak);
             this.updateBestDisplay();
             const finalStreak = this.hlStreak;
+            this.store.recordGamePlayed('higherlower', finalStreak);
 
             const scoreEl = document.getElementById('hl-score');
             scoreEl.innerText = 0;

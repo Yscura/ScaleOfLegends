@@ -9,7 +9,8 @@
     <!-- PWA: installable + offline -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a1119">
-    <link rel="apple-touch-icon" href="img/logo.png">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
     <!-- Open Graph: nicer link previews when the share URL is pasted -->
     <meta property="og:title" content="Scale of Legends">
@@ -49,6 +50,11 @@
                 <span id="unit-label" class="text-white font-mono">Metric (m)</span>
             </button>
 
+            <!-- Profile / Stats -->
+            <button id="profile-btn" title="Your stats" aria-label="Your stats" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors shadow-md text-xs font-bold flex items-center gap-1.5">
+                <span>📈</span>
+            </button>
+
             <!-- Streak Counter -->
             <div class="bg-slate-800/80 border border-slate-700 px-3 py-1 rounded-lg text-right">
                 <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase font-bold tracking-wider">Day Streak</div>
@@ -75,6 +81,18 @@
                 <p class="text-xs text-[color:var(--sol-text-dim)] mt-2">⏱ Next daily challenge in <span class="next-daily-timer text-[color:var(--sol-gold)] font-mono font-bold">—:—:—</span></p>
             </div>
             <div id="home-mode-list" class="flex flex-col gap-3 max-w-lg mx-auto w-full"></div>
+        </section>
+
+        <!-- VIEW: PROFILE / STATS -->
+        <section id="view-profile" class="hidden flex-col flex-grow p-5 sm:p-8 bg-slate-950 justify-start">
+            <div class="text-center mb-5">
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">Your record</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-[color:var(--sol-gold-bright)] mt-1">Stats &amp; Profile</h2>
+                <button id="profile-share-btn" class="mt-3 inline-flex items-center gap-2 bg-[var(--sol-gold)] hover:brightness-110 text-[color:var(--sol-ink)] text-xs font-black uppercase tracking-wider px-4 py-2 rounded-lg shadow-[0_0_18px_rgb(var(--sol-gold-rgb)_/_0.4)] transition">
+                    <span>📤</span> Share my stats
+                </button>
+            </div>
+            <div id="profile-body" class="max-w-lg mx-auto w-full"></div>
         </section>
 
         <!-- VIEW 1: SCALING ARENA (Daily Mode & Free Practice) -->

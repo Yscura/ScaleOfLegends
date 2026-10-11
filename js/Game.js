@@ -5,6 +5,7 @@ import { MIN_CM, MAX_CM } from './core/constants.js';
 import { BENCHMARKS } from './data/benchmarks.js';
 import { ICONS } from './data/icons.js';
 import { MODES } from './data/modes.js';
+import { ACHIEVEMENTS } from './data/achievements.js';
 import { DailyMode } from './modes/DailyMode.js';
 import { SandboxMode } from './modes/SandboxMode.js';
 import { RegionMode } from './modes/RegionMode.js';
@@ -15,6 +16,7 @@ import { LadderMode } from './modes/LadderMode.js';
 
 const VIEW_IDS = [
     'view-home',
+    'view-profile',
     'view-scaling-arena',
     'view-region-game',
     'view-order-game',
@@ -23,6 +25,20 @@ const VIEW_IDS = [
     'view-ladder',
     'daily-banner-notice'
 ];
+
+/**
+ * Per-mode metadata for the profile page. `bestKey` is the localStorage record
+ * key (null when the best lives only in lifetime stats); `suffix`/labels shape
+ * how the "best" and "average" numbers read for that mode.
+ */
+const STAT_META = {
+    daily:       { bestKey: null,             suffix: '%', bestLabel: 'Best accuracy', avgLabel: 'Avg accuracy', avgSuffix: '%' },
+    region:      { bestKey: null,             suffix: '',  bestLabel: 'Best streak',   avgLabel: 'Avg streak',   avgSuffix: '' },
+    order:       { bestKey: 'sol_order_best', suffix: '',  bestLabel: 'Best streak',   avgLabel: 'Avg streak',   avgSuffix: '' },
+    higherlower: { bestKey: 'sol_hl_best',    suffix: '',  bestLabel: 'Best streak',   avgLabel: 'Avg streak',   avgSuffix: '' },
+    price:       { bestKey: 'sol_price_best', suffix: '',  bestLabel: 'Best score',    avgLabel: 'Avg score',    avgSuffix: '' },
+    ladder:      { bestKey: 'sol_ladder_best',suffix: '',  bestLabel: 'Best run',      avgLabel: 'Avg run',      avgSuffix: '' },
+};
 
 /**
  * Top-level orchestrator. Owns shared services (audio, store), shared state
@@ -202,6 +218,168 @@ export class ScaleOfLegendsGame {
         document.getElementById('view-home').classList.remove('hidden');
     }
 
+    /** Shows the profile/stats page, rebuilt fresh from stored stats each time. */
+    showProfile() {
+        this.currentMode = 'profile';
+        document.body.classList.remove('is-home');
+        this.clearInfo();
+        document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+        VIEW_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        this.renderProfile();
+        document.getElementById('view-profile').classList.remove('hidden');
+    }
+
+    /** Builds the profile page from lifetime stats + records (see GameStore). */
+    renderProfile() {
+        const body = document.getElementById('profile-body');
+        if (!body) return;
+        const stats = this.store.getStats();
+
+        const statModes = MODES.filter(m => STAT_META[m.id]);
+        const totalGames = statModes.reduce((sum, m) => sum + ((stats[m.id] && stats[m.id].plays) || 0), 0);
+        const dailyPlays = (stats.daily && stats.daily.plays) || 0;
+        const acc = Array.isArray(stats.dailyAcc) ? stats.dailyAcc : [];
+
+        // Summary used both by the tiles and to resolve achievements.
+        const bestOf = (key, modeId) =>
+            Math.max(key ? this.store.getBestStreak(key) : 0, (stats[modeId] && stats[modeId].best) || 0);
+        const data = {
+            totalGames,
+            dailyPlays,
+            modesPlayed: statModes.filter(m => ((stats[m.id] && stats[m.id].plays) || 0) > 0).length,
+            curDay: this.store.currentDayStreak(),
+            bestDay: this.store.getBestDayStreak(),
+            bestDailyAcc: acc.length ? Math.max(...acc) : 0,
+            best: {
+                higherlower: bestOf('sol_hl_best', 'higherlower'),
+                ladder: bestOf('sol_ladder_best', 'ladder'),
+                price: bestOf('sol_price_best', 'price'),
+                order: bestOf('sol_order_best', 'order'),
+                region: bestOf(null, 'region'),
+            },
+        };
+
+        const tile = (label, value) =>
+            `<div class="profile-tile">
+                <div class="profile-tile-value">${value}</div>
+                <div class="profile-tile-label">${label}</div>
+            </div>`;
+
+        const summary =
+            `<div class="profile-tiles">
+                ${tile('Day streak', `🔥 ${this.store.currentDayStreak()}`)}
+                ${tile('Best day streak', this.store.getBestDayStreak())}
+                ${tile('Dailies played', dailyPlays)}
+                ${tile('Games played', totalGames)}
+            </div>`;
+
+        // Achievements — derived live from `data`, no extra persistence.
+        const achievements = ACHIEVEMENTS.map(a => {
+            const value = Math.max(0, a.value(data) || 0);
+            return { ...a, value, unlocked: value >= a.target };
+        });
+        const unlockedCount = achievements.filter(a => a.unlocked).length;
+        const badges = achievements.map(a => {
+            const pct = Math.min(100, Math.round((a.value / a.target) * 100));
+            return `<div class="ach ${a.unlocked ? 'ach-on' : 'ach-off'}" title="${a.name} — ${a.desc}">
+                <span class="ach-icon">${a.icon}</span>
+                <span class="ach-text">
+                    <span class="ach-name">${a.name}</span>
+                    <span class="ach-desc">${a.desc}</span>
+                    ${a.unlocked
+                        ? `<span class="ach-done">✓ Unlocked</span>`
+                        : `<span class="ach-bar"><span class="ach-bar-fill" style="width:${pct}%"></span></span>
+                           <span class="ach-prog">${Math.min(a.value, a.target)} / ${a.target}</span>`}
+                </span>
+            </div>`;
+        }).join('');
+        const achievementsHtml =
+            `<div class="profile-section">
+                <div class="profile-section-head">
+                    <span>Achievements</span>
+                    <span class="profile-section-sub">${unlockedCount} / ${achievements.length} unlocked</span>
+                </div>
+                <div class="ach-grid">${badges}</div>
+            </div>`;
+
+        // Daily accuracy distribution (last 100 dailies, 20-point buckets).
+        let distribution = '';
+        if (acc.length) {
+            const buckets = [0, 0, 0, 0, 0]; // 0-19, 20-39, 40-59, 60-79, 80-100
+            acc.forEach(a => { buckets[Math.min(4, Math.floor(a / 20))]++; });
+            const max = Math.max(...buckets, 1);
+            const labels = ['0–19%', '20–39%', '40–59%', '60–79%', '80–100%'];
+            const avg = Math.round(acc.reduce((s, a) => s + a, 0) / acc.length);
+            const rows = buckets.map((count, i) =>
+                `<div class="dist-row">
+                    <span class="dist-label">${labels[i]}</span>
+                    <span class="dist-bar-wrap"><span class="dist-bar" style="width:${(count / max) * 100}%">${count ? `<span class="dist-count">${count}</span>` : ''}</span></span>
+                </div>`).join('');
+            distribution =
+                `<div class="profile-section">
+                    <div class="profile-section-head">
+                        <span>Daily accuracy</span>
+                        <span class="profile-section-sub">avg ${avg}% · ${acc.length} ${acc.length === 1 ? 'daily' : 'dailies'}</span>
+                    </div>
+                    <div class="dist">${rows}</div>
+                </div>`;
+        }
+
+        // Per-mode breakdown.
+        const cards = statModes.map(m => {
+            const meta = STAT_META[m.id];
+            const s = stats[m.id] || { plays: 0, scoreSum: 0, best: 0 };
+            const recordBest = meta.bestKey ? this.store.getBestStreak(meta.bestKey) : 0;
+            const best = Math.max(recordBest, s.best || 0);
+            const avg = s.plays ? Math.round(s.scoreSum / s.plays) : 0;
+            return `<button class="profile-mode" data-mode="${m.id}">
+                <span class="profile-mode-icon" data-icon="${m.id}"></span>
+                <span class="profile-mode-main">
+                    <span class="profile-mode-name">${m.name}</span>
+                    <span class="profile-mode-sub">${s.plays} ${s.plays === 1 ? 'game' : 'games'} played</span>
+                </span>
+                <span class="profile-mode-stat">
+                    <span class="profile-mode-best">${best}${meta.suffix}</span>
+                    <span class="profile-mode-beststat">${meta.bestLabel}</span>
+                    <span class="profile-mode-avg">${meta.avgLabel} ${avg}${meta.avgSuffix}</span>
+                </span>
+            </button>`;
+        }).join('');
+
+        const played = totalGames > 0 || acc.length > 0;
+        body.innerHTML = summary + achievementsHtml + distribution +
+            `<div class="profile-section">
+                <div class="profile-section-head"><span>By mode</span></div>
+                <div class="profile-modes">${cards}</div>
+            </div>` +
+            (played ? '' : `<p class="profile-empty">No games logged yet — play a mode and your stats will fill in here.</p>`);
+
+        // Shareable brag card (used by the profile share button).
+        const topLine = [
+            data.best.higherlower ? `Bigger? ${data.best.higherlower}` : null,
+            data.best.ladder ? `Ladder ${data.best.ladder}` : null,
+            data.best.price ? `Price ${data.best.price}` : null,
+        ].filter(Boolean).join(' · ');
+        let brag = `📊 My Scale of Legends stats\n`;
+        brag += `🔥 Day streak ${data.curDay} (best ${data.bestDay})\n`;
+        brag += `🎮 ${totalGames} games · 🏅 ${unlockedCount}/${achievements.length} achievements\n`;
+        if (topLine) brag += `🏆 ${topLine}\n`;
+        brag += `\nThink you can beat me? 👉 ${this.shareUrl()}`;
+        this._profileShareText = brag;
+
+        // Fill mode icons + make each card jump into that mode.
+        statModes.forEach(m => {
+            const slot = body.querySelector(`.profile-mode-icon[data-icon="${m.id}"]`);
+            if (slot) this.fillIcon(slot, ICONS.modes[m.id], m.emoji, 'profile-mode-icon-img');
+        });
+        body.querySelectorAll('.profile-mode').forEach(btn => {
+            btn.addEventListener('click', () => this.switchMode(btn.getAttribute('data-mode')));
+        });
+    }
+
     bindElements() {
         this.elements = {
             slider: document.getElementById('height-slider'),
@@ -296,6 +474,10 @@ export class ScaleOfLegendsGame {
 
         // Logo acts as a home button; mode-tab clicks are wired in buildModeBar().
         document.getElementById('app-title').addEventListener('click', () => this.showHome());
+        document.getElementById('profile-btn').addEventListener('click', () => this.showProfile());
+        document.getElementById('profile-share-btn').addEventListener('click', () => {
+            this.shareResult(this._profileShareText || `📊 My Scale of Legends stats 👉 ${this.shareUrl()}`);
+        });
     }
 
     handleUnitToggle() {

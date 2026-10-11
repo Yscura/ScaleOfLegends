@@ -84,6 +84,10 @@ export class GameStore {
         return (last === this.todayStr() || last === yesterday) ? stored : 0;
     }
 
+    getBestDayStreak() {
+        return parseInt(localStorage.getItem('sol_best_day_streak') || '0', 10);
+    }
+
     /** Records a completed real (non-challenge) daily and advances the streak. */
     recordDailyComplete() {
         const today = this.todayStr();
@@ -94,6 +98,43 @@ export class GameStore {
         const streak = (last === yesterday) ? stored + 1 : 1;
         localStorage.setItem('sol_day_streak', String(streak));
         localStorage.setItem('sol_last_daily', today);
+        if (streak > this.getBestDayStreak()) {
+            localStorage.setItem('sol_best_day_streak', String(streak));
+        }
         return streak;
+    }
+
+    // --- Lifetime stats (profile page) ---
+    _loadStats() {
+        try { return JSON.parse(localStorage.getItem('sol_stats') || '{}'); }
+        catch { return {}; }
+    }
+
+    _saveStats(stats) {
+        try { localStorage.setItem('sol_stats', JSON.stringify(stats)); } catch { /* storage full/blocked */ }
+    }
+
+    /** Records one finished run of a mode with its final score/streak. */
+    recordGamePlayed(modeId, finalScore = 0) {
+        const stats = this._loadStats();
+        const m = stats[modeId] || { plays: 0, scoreSum: 0, best: 0 };
+        m.plays += 1;
+        m.scoreSum += finalScore;
+        if (finalScore > m.best) m.best = finalScore;
+        stats[modeId] = m;
+        this._saveStats(stats);
+    }
+
+    /** Records a completed daily's average accuracy (for the distribution chart). */
+    recordDailyAccuracy(accuracy) {
+        const stats = this._loadStats();
+        const list = Array.isArray(stats.dailyAcc) ? stats.dailyAcc : [];
+        list.push(Math.round(accuracy));
+        stats.dailyAcc = list.slice(-100); // keep the last 100 dailies
+        this._saveStats(stats);
+    }
+
+    getStats() {
+        return this._loadStats();
     }
 }

@@ -6,7 +6,7 @@
  *    since those rarely change and this makes repeat loads fast.
  * Bump CACHE when you want clients to drop the old cache.
  */
-const CACHE = 'sol-v1';
+const CACHE = 'sol-v3';
 const APP_SHELL = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {

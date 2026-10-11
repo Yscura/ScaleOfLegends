@@ -100,6 +100,10 @@ export class DailyMode extends ArenaMode {
     advance() {
         this.dailyIndex++;
         if (this.dailyIndex >= this.dailyRoster.length) {
+            const sum = this.dailyScores.reduce((acc, s) => acc + s.accuracy, 0);
+            const avg = sum / (this.dailyScores.length || 1);
+            this.store.recordGamePlayed('daily', Math.round(avg));
+            this.store.recordDailyAccuracy(avg);
             // Only a real (non-challenge) daily counts toward the day streak.
             if (this.store.challengeSeed == null) {
                 this.store.recordDailyComplete();

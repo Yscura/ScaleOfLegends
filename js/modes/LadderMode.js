@@ -151,6 +151,7 @@ export class LadderMode extends BaseMode {
             this.store.recordBestStreak(LADDER_BEST_KEY, this.score);
             this.updateBestDisplay();
             const finalScore = this.score;
+            this.store.recordGamePlayed('ladder', finalScore);
 
             const scoreEl = document.getElementById('ladder-score');
             scoreEl.innerText = 0;
