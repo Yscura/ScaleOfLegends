@@ -562,6 +562,60 @@
             </div>
         </section>
 
+        <!-- VIEW 7: STREAMER SCALE (joke mode) -->
+        <section id="view-creator" class="hidden flex-col flex-grow p-4 sm:p-6 bg-slate-950 justify-between">
+            <div class="text-center mb-2">
+                <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">STREAMER SCALE</span>
+                <h3 class="text-xl sm:text-2xl font-black text-[color:var(--sol-gold-bright)]">How tall is <span id="creator-name" class="text-[color:var(--sol-gold)]">Tyler1</span>?</h3>
+                <p class="text-xs text-[color:var(--sol-text-dim)]">Scale them against an average human, then lock in your guess.</p>
+                <p class="text-[10px] text-[color:var(--sol-gold-soft)] mt-1">🎭 Just for fun — heights are self-reported / community estimates, not verified facts.</p>
+            </div>
+
+            <div class="flex flex-col items-center flex-grow justify-center max-w-xl mx-auto w-full gap-3">
+                <!-- Creator portrait circle (assign an image via data/creators.js `img`) -->
+                <div id="creator-avatar" class="creator-avatar">T</div>
+
+                <!-- Scale comparison: fixed human reference + scaling streamer -->
+                <div class="creator-stage">
+                    <div class="creator-ground"></div>
+                    <div class="creator-col">
+                        <div class="creator-cap creator-cap-muted">Average Human<br><span id="creator-human-height" class="font-mono">1.74 m</span></div>
+                        <div class="creator-fig creator-fig-muted" id="creator-human-fig" style="height:113px;">
+                            <svg viewBox="0 0 60 160" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><g fill="currentColor"><circle cx="30" cy="22" r="16"/><rect x="18" y="40" width="24" height="58" rx="11"/><rect x="20" y="92" width="9" height="64" rx="4"/><rect x="31" y="92" width="9" height="64" rx="4"/></g></svg>
+                        </div>
+                    </div>
+                    <div class="creator-col">
+                        <div id="creator-guess-box" class="bg-[var(--sol-gold)] text-[color:var(--sol-ink)] font-black font-mono text-xl px-4 py-1 rounded-xl border-2 border-[color:var(--sol-gold-bright)] shadow-[0_0_18px_rgb(var(--sol-gold-rgb)_/_0.45)]">1.74 m</div>
+                        <div class="creator-fig creator-fig-gold" id="creator-streamer-fig" style="height:113px;">
+                            <svg viewBox="0 0 60 160" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><g fill="currentColor"><circle cx="30" cy="22" r="16"/><rect x="18" y="40" width="24" height="58" rx="11"/><rect x="20" y="92" width="9" height="64" rx="4"/><rect x="31" y="92" width="9" height="64" rx="4"/></g></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="creator-reveal" class="hidden text-center text-sm font-bold leading-relaxed"></div>
+            </div>
+
+            <div class="p-2 sm:p-4">
+                <div class="flex justify-between items-center text-xs font-mono text-[color:var(--sol-text-dim)] mb-1">
+                    <span id="creator-min-label" class="font-bold">1.40 m</span>
+                    <span class="text-[color:var(--sol-gold)] font-extrabold uppercase tracking-wider">Set your guess</span>
+                    <span id="creator-max-label" class="font-bold">2.20 m</span>
+                </div>
+                <div class="p-3 bg-slate-900 rounded-2xl border-2 border-[color:var(--sol-gold-dim)] shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.15)]">
+                    <input type="range" id="creator-slider" min="140" max="220" step="1" value="174">
+                </div>
+                <button id="creator-lock-btn" class="w-full mt-3 py-3.5 rounded-xl bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black text-base tracking-widest shadow-[0_0_20px_rgb(var(--sol-gold-rgb)_/_0.35)] transition-all active:scale-95 uppercase">
+                    LOCK IN GUESS
+                </button>
+            </div>
+
+            <div class="text-center mt-1 flex items-center justify-center gap-6">
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">STREAK: <span id="creator-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="creator-best" class="text-[color:var(--sol-teal)] text-lg font-black font-sans ml-1">0</span></div>
+                <button id="creator-share" class="text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
+            </div>
+        </section>
+
     </main>
 
     <!-- RESULTS MODAL -->

@@ -13,6 +13,7 @@ import { OrderMode } from './modes/OrderMode.js';
 import { HigherLowerMode } from './modes/HigherLowerMode.js';
 import { PriceMode } from './modes/PriceMode.js';
 import { LadderMode } from './modes/LadderMode.js';
+import { CreatorMode } from './modes/CreatorMode.js';
 
 const VIEW_IDS = [
     'view-home',
@@ -23,6 +24,7 @@ const VIEW_IDS = [
     'view-higher-lower',
     'view-price',
     'view-ladder',
+    'view-creator',
     'daily-banner-notice'
 ];
 
@@ -38,6 +40,7 @@ const STAT_META = {
     higherlower: { bestKey: 'sol_hl_best',    suffix: '',  bestLabel: 'Best streak',   avgLabel: 'Avg streak',   avgSuffix: '' },
     price:       { bestKey: 'sol_price_best', suffix: '',  bestLabel: 'Best score',    avgLabel: 'Avg score',    avgSuffix: '' },
     ladder:      { bestKey: 'sol_ladder_best',suffix: '',  bestLabel: 'Best run',      avgLabel: 'Avg run',      avgSuffix: '' },
+    creator:     { bestKey: 'sol_creator_streak',suffix: '', bestLabel: 'Best streak',  avgLabel: 'Avg streak',   avgSuffix: '' },
 };
 
 /**
@@ -66,7 +69,8 @@ export class ScaleOfLegendsGame {
             order: new OrderMode(this),
             higherlower: new HigherLowerMode(this),
             price: new PriceMode(this),
-            ladder: new LadderMode(this)
+            ladder: new LadderMode(this),
+            creator: new CreatorMode(this)
         };
         this.activeMode = this.modes.daily;
 
@@ -179,6 +183,12 @@ export class ScaleOfLegendsGame {
             btn.setAttribute('data-tooltip', m.name);
             btn.setAttribute('aria-label', m.name);
             this.fillIcon(btn, ICONS.modes[m.id], m.emoji, 'mode-tab-icon-img');
+            if (m.badge) {
+                const flag = document.createElement('span');
+                flag.className = 'mode-badge';
+                flag.textContent = m.badge;
+                btn.appendChild(flag);
+            }
             btn.addEventListener('click', () => this.switchMode(m.id));
             bar.appendChild(btn);
         });
@@ -200,6 +210,12 @@ export class ScaleOfLegendsGame {
             card.querySelector('.home-mode-name').textContent = m.name;
             card.querySelector('.home-mode-tagline').textContent = m.tagline;
             this.fillIcon(card.querySelector('.home-mode-icon'), ICONS.modes[m.id], m.emoji, 'home-mode-icon-img');
+            if (m.badge) {
+                const flag = document.createElement('span');
+                flag.className = 'home-mode-badge';
+                flag.textContent = m.badge;
+                card.appendChild(flag);
+            }
             card.addEventListener('click', () => this.switchMode(m.id));
             list.appendChild(card);
         });
@@ -432,6 +448,9 @@ export class ScaleOfLegendsGame {
         document.getElementById('price-slider').addEventListener('input', () => this.modes.price.onSliderInput());
         document.getElementById('price-lock-btn').addEventListener('click', () => this.modes.price.lockIn());
 
+        document.getElementById('creator-slider').addEventListener('input', () => this.modes.creator.onSliderInput());
+        document.getElementById('creator-lock-btn').addEventListener('click', () => this.modes.creator.lockIn());
+
         // Map Pin Region Clicks + outline cross-highlighting
         const regionTargets = document.querySelectorAll('#view-region-game [data-region]');
         const setRegionActive = (region, active) => {
@@ -462,6 +481,7 @@ export class ScaleOfLegendsGame {
             ['ladder-share', 'Scale Ladder', 'ladder-best', 'best run'],
             ['order-share', 'Height Order', 'order-best', 'best streak'],
             ['region-share', 'Region Map', 'region-score', 'streak'],
+            ['creator-share', 'Streamer Scale', 'creator-best', 'best streak'],
         ];
         shareCfg.forEach(([btnId, name, valId, label]) => {
             const btn = document.getElementById(btnId);

@@ -22,5 +22,6 @@ export const ICONS = {
         higherlower: 'img/higherlower.png', 
         price:       'img/price.png', 
         ladder:      'img/ladder.png', 
+        creator:    'img/streamer.png',
     }
 };
