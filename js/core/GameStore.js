@@ -3,15 +3,25 @@ import { ScaleUtils } from './ScaleUtils.js';
 export class GameStore {
     constructor() {
         this.recentPicks = [];
+        // Set from a ?c=<seed> challenge link so the daily reproduces a shared puzzle.
+        this.challengeSeed = null;
     }
 
-    getDailySeed() {
-        const today = new Date().toISOString().split('T')[0];
+    todayStr() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    seedFromDate(dateStr) {
         let hash = 0;
-        for (let i = 0; i < today.length; i++) {
-            hash = today.charCodeAt(i) + ((hash << 5) - hash);
+        for (let i = 0; i < dateStr.length; i++) {
+            hash = dateStr.charCodeAt(i) + ((hash << 5) - hash);
         }
         return Math.abs(hash);
+    }
+
+    /** Seed for the active daily — a shared challenge seed if present, else today. */
+    getDailySeed() {
+        return this.challengeSeed != null ? this.challengeSeed : this.seedFromDate(this.todayStr());
     }
 
     recordPick(champ) {
@@ -56,13 +66,34 @@ export class GameStore {
         return false;
     }
 
-    getStreak() {
-        return parseInt(localStorage.getItem('scaleoflegends_streak') || '0', 10);
+    // --- Consecutive-day streak (the "come back every day" hook) ---
+    getLastDailyDate() {
+        return localStorage.getItem('sol_last_daily') || null;
     }
 
-    incrementStreak() {
-        const current = this.getStreak() + 1;
-        localStorage.setItem('scaleoflegends_streak', current.toString());
-        return current;
+    hasPlayedDailyToday() {
+        return this.getLastDailyDate() === this.todayStr();
+    }
+
+    /** The day-streak as it stands right now — 0 if a day was missed. */
+    currentDayStreak() {
+        const last = this.getLastDailyDate();
+        if (!last) return 0;
+        const stored = parseInt(localStorage.getItem('sol_day_streak') || '0', 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        return (last === this.todayStr() || last === yesterday) ? stored : 0;
+    }
+
+    /** Records a completed real (non-challenge) daily and advances the streak. */
+    recordDailyComplete() {
+        const today = this.todayStr();
+        const last = this.getLastDailyDate();
+        if (last === today) return this.currentDayStreak(); // already counted today
+        const stored = parseInt(localStorage.getItem('sol_day_streak') || '0', 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const streak = (last === yesterday) ? stored + 1 : 1;
+        localStorage.setItem('sol_day_streak', String(streak));
+        localStorage.setItem('sol_last_daily', today);
+        return streak;
     }
 }

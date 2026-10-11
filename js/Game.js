@@ -33,6 +33,9 @@ export class ScaleOfLegendsGame {
     constructor() {
         this.audio = new AudioController();
         this.store = new GameStore();
+        // A ?c=<seed> link makes the daily reproduce a shared challenge; must be
+        // read before the modes are built (DailyMode seeds its roster on create).
+        this.parseChallengeParam();
 
         this.currentMode = 'daily';
         this.unitSystem = 'metric';
@@ -56,7 +59,60 @@ export class ScaleOfLegendsGame {
         this.buildHomePage();
         this.applyLogo();
         this.updateStreakDisplay();
-        this.showHome();
+        this.startDailyCountdown();
+
+        // A challenge link drops you straight into the shared puzzle; else home.
+        if (this.store.challengeSeed != null) {
+            this.switchMode('daily');
+        } else {
+            this.showHome();
+        }
+    }
+
+    parseChallengeParam() {
+        const c = new URLSearchParams(location.search).get('c');
+        if (c && /^\d+$/.test(c)) {
+            this.store.challengeSeed = parseInt(c, 10);
+        }
+    }
+
+    /** Base URL for share links (no query string). */
+    shareUrl() {
+        return `${location.origin}${location.pathname}`;
+    }
+
+    /** Shares text via the native share sheet when available, else copies it. */
+    async shareResult(text) {
+        if (navigator.share) {
+            try {
+                await navigator.share({ text });
+                return;
+            } catch (e) {
+                if (e && e.name === 'AbortError') return; // user dismissed the sheet
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(text);
+            this.showToast('Copied — paste it anywhere to share!', 'success');
+        } catch (e) {
+            this.showToast('Select the result text and copy it to share.', 'info');
+        }
+    }
+
+    /** Live countdown (UTC) to the next daily reset, shown wherever .next-daily-timer is. */
+    startDailyCountdown() {
+        const update = () => {
+            const now = new Date();
+            const next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+            const s = Math.max(0, Math.floor((next - now.getTime()) / 1000));
+            const h = String(Math.floor(s / 3600)).padStart(2, '0');
+            const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+            const sec = String(s % 60).padStart(2, '0');
+            document.querySelectorAll('.next-daily-timer').forEach(el => { el.textContent = `${h}:${m}:${sec}`; });
+        };
+        update();
+        clearInterval(this._countdownTimer);
+        this._countdownTimer = setInterval(update, 1000);
     }
 
     /**
@@ -211,9 +267,31 @@ export class ScaleOfLegendsGame {
             el.addEventListener('click', () => this.modes.region.handleRegionGuess(region));
         });
 
-        document.getElementById('copy-share-btn').addEventListener('click', () => this.modes.daily.copyShareCard());
+        document.getElementById('copy-share-btn').addEventListener('click', () => this.modes.daily.shareResults());
         document.getElementById('close-daily-btn').addEventListener('click', () => {
             document.getElementById('daily-complete-modal').classList.add('hidden');
+        });
+        const playTodayBtn = document.getElementById('play-today-btn');
+        if (playTodayBtn) {
+            // Drop the ?c= challenge param and reload into today's real daily.
+            playTodayBtn.addEventListener('click', () => { window.location.href = location.pathname; });
+        }
+
+        // "Share your best" buttons on the streak modes (score/best read from the DOM).
+        const shareCfg = [
+            ['hl-share', 'Bigger?', 'hl-best', 'best streak'],
+            ['price-share', 'Price is Right', 'price-best', 'best score'],
+            ['ladder-share', 'Scale Ladder', 'ladder-best', 'best run'],
+            ['order-share', 'Height Order', 'order-best', 'best streak'],
+            ['region-share', 'Region Map', 'region-score', 'streak'],
+        ];
+        shareCfg.forEach(([btnId, name, valId, label]) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                const val = (document.getElementById(valId)?.textContent || '0').trim();
+                this.shareResult(`🏆 My ${label} in ${name} on Scale of Legends: ${val}! Can you beat it?\n👉 ${this.shareUrl()}`);
+            });
         });
 
         // Logo acts as a home button; mode-tab clicks are wired in buildModeBar().
@@ -370,7 +448,6 @@ export class ScaleOfLegendsGame {
     }
 
     updateStreakDisplay() {
-        const streak = this.store.getStreak();
-        this.elements.streakCounter.innerText = `🔥 ${streak}`;
+        this.elements.streakCounter.innerText = `🔥 ${this.store.currentDayStreak()}`;
     }
 }

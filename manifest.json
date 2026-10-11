@@ -1,0 +1,19 @@
+{
+  "name": "Scale of Legends",
+  "short_name": "ScaleOfLegends",
+  "description": "A daily League of Legends scale & trivia guessing game.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1119",
+  "theme_color": "#0a1119",
+  "icons": [
+    {
+      "src": "img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

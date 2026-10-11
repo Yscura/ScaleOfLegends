@@ -5,6 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scale of Legends - Daily LoL Scale & Height Challenge</title>
+    <meta name="description" content="A daily League of Legends scale & trivia guessing game — estimate champion heights and test your Runeterra knowledge.">
+    <!-- PWA: installable + offline -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a1119">
+    <link rel="apple-touch-icon" href="img/logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Open Graph: nicer link previews when the share URL is pasted -->
+    <meta property="og:title" content="Scale of Legends">
+    <meta property="og:description" content="A daily League of Legends scale & trivia guessing game.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="img/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
@@ -40,7 +51,7 @@
 
             <!-- Streak Counter -->
             <div class="bg-slate-800/80 border border-slate-700 px-3 py-1 rounded-lg text-right">
-                <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase font-bold tracking-wider">Streak</div>
+                <div class="text-[10px] text-[color:var(--sol-text-dim)] uppercase font-bold tracking-wider">Day Streak</div>
                 <div id="streak-counter" class="text-base font-black text-[color:var(--sol-gold)] flex items-center justify-end gap-1 font-mono">
                     🔥 0
                 </div>
@@ -61,6 +72,7 @@
             <div class="text-center mb-5">
                 <span class="text-xs font-mono font-bold text-[color:var(--sol-gold)] tracking-widest uppercase">Choose your challenge</span>
                 <h2 class="text-2xl sm:text-3xl font-black text-[color:var(--sol-gold-bright)] mt-1">Guess League of Legends scales</h2>
+                <p class="text-xs text-[color:var(--sol-text-dim)] mt-2">⏱ Next daily challenge in <span class="next-daily-timer text-[color:var(--sol-gold)] font-mono font-bold">—:—:—</span></p>
             </div>
             <div id="home-mode-list" class="flex flex-col gap-3 max-w-lg mx-auto w-full"></div>
         </section>
@@ -383,6 +395,7 @@
             <!-- Score Footer -->
             <div class="text-center mt-3">
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">MAP STREAK: <span id="region-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <button id="region-share" class="mt-2 inline-block text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
             </div>
         </section>
 
@@ -405,6 +418,7 @@
                 <div class="text-center flex items-center justify-center gap-6">
                     <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">STREAK: <span id="order-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
                     <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="order-best" class="text-[color:var(--sol-teal)] text-lg font-black font-sans ml-1">0</span></div>
+                    <button id="order-share" class="text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
                 </div>
             </div>
         </section>
@@ -457,6 +471,7 @@
             <div class="text-center mt-4 flex items-center justify-center gap-6">
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">STREAK: <span id="hl-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="hl-best" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <button id="hl-share" class="text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
             </div>
         </section>
 
@@ -498,6 +513,7 @@
             <div class="text-center mt-1 flex items-center justify-center gap-6">
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">SCORE: <span id="price-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="price-best" class="text-[color:var(--sol-teal)] text-lg font-black font-sans ml-1">0</span></div>
+                <button id="price-share" class="text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
             </div>
         </section>
 
@@ -524,6 +540,7 @@
             <div class="text-center mt-3 flex items-center justify-center gap-6">
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">PLACED: <span id="ladder-score" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
                 <div class="text-[color:var(--sol-text-dim)] text-xs font-mono">🏆 BEST: <span id="ladder-best" class="text-[color:var(--sol-gold)] text-lg font-black font-sans ml-1">0</span></div>
+                <button id="ladder-share" class="text-[10px] font-bold text-[color:var(--sol-gold)] border border-[color:rgb(var(--sol-gold-rgb)_/_0.4)] rounded-lg px-2.5 py-1 hover:bg-[var(--sol-panel)] transition-colors">📤 Share</button>
             </div>
         </section>
 
@@ -584,14 +601,19 @@
                 <div id="share-card-text" class="whitespace-pre-wrap font-mono"></div>
             </div>
 
+            <div class="text-[11px] text-[color:var(--sol-text-dim)] mb-3">⏱ Next daily in <span class="next-daily-timer text-[color:var(--sol-gold)] font-mono font-bold">—:—:—</span></div>
+
             <div class="flex gap-3">
                 <button id="copy-share-btn" class="flex-1 py-3 bg-[var(--sol-gold)] hover:bg-[var(--sol-gold-hover)] text-[color:var(--sol-ink)] font-black rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 uppercase">
-                    <span>📋</span> COPY RESULTS
+                    <span>📤</span> SHARE
                 </button>
                 <button id="close-daily-btn" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm">
                     Close
                 </button>
             </div>
+            <button id="play-today-btn" class="hidden w-full mt-3 py-2.5 rounded-xl border border-[color:rgb(var(--sol-gold-rgb)_/_0.5)] text-[color:var(--sol-gold)] font-bold text-sm hover:bg-[var(--sol-panel)] transition-all">
+                ▶ Play today's daily
+            </button>
         </div>
     </div>
 
